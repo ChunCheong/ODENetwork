@@ -8,6 +8,7 @@ It does what a lab manager should be doing. i.e
 import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
 import networks #; reload(networks)
+import electrodes#; reload(electrodes)
 import matplotlib.pyplot as plt
 
 """
@@ -88,7 +89,9 @@ def sample_plot(time_sampled_range, data, net):
         ii = neuron.ii
         v_m = data[:,ii]
         ca = data[:,ii+6]
-        fig, axes = plt.subplots(2,1,sharex=True)
+        i_inj = electrodes.sym2num(t, neuron.i_inj)
+        i_inj = i_inj(time_sampled_range)
+        fig, axes = plt.subplots(3,1,sharex=True)
         axes[0].plot(time_sampled_range, v_m, label="V_m")
         axes[0].set_ylabel("V_m [mV]")
         axes[0].legend()
@@ -97,6 +100,9 @@ def sample_plot(time_sampled_range, data, net):
         axes[1].axhline(THETA_D, color="orange", label="theta_d")
         axes[1].axhline(THETA_P, color="green", label="theta_p")
         axes[1].legend()
+        axes[2].plot(time_sampled_range, i_inj, label="i_inj")
+        axes[2].set_ylabel("[some unit]")
+        axes[2].legend()
         axes[-1].set_xlabel("time [ms]")
         plt.suptitle("Neuron {}".format(n))
 
