@@ -18,12 +18,10 @@ Try running main.py to have a taste of what is it doing.
 Jonathan C.C. Lam [https://github.com/ChunCheong]
 (Add you name here if you want to join the band!)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Acknowledgments
 The project has be benefited greatly from tow open source projects.
 * NetworkX
 * JiTCODE
+
 This would simply be impossible without them.
