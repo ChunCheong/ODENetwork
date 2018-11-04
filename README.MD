@@ -15,8 +15,8 @@ Try running main.py to have a taste of what is it doing.
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
+Jonathan C.C. Lam [https://github.com/ChunCheong]
+(Add you name here if you want to join the band!)
 
 ## License
 
