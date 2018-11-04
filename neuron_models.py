@@ -76,7 +76,7 @@ class PlasticNMDASynapse:
         self.syn_weight = None #y(i)
         self.rho_gate = None
 
-    def fix_integration_index(self, i):
+    def set_integration_index(self, i):
         self.ii = i # integration index
         self.syn_weight = y(i)
         self.rho_gate = y(i+1)
@@ -179,7 +179,7 @@ class HHNeuronWithCa:
         #self.rho_gate = None #y(i+7)
         # may put para here
 
-    def fix_integration_index(self, i):
+    def set_integration_index(self, i):
         """
         Args:
             i: integration variable index
@@ -194,7 +194,7 @@ class HHNeuronWithCa:
         self.calcium = y(i+6)
         #self.rho_gate = y(i+7)
 
-    def fix_neuron_index(self, ni):
+    def set_neuron_index(self, ni):
         self.ni = ni
 
     def dydt(self, pre_synapses, pre_neurons):

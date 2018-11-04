@@ -1,17 +1,22 @@
 # main.py
-from importlib import reload  # Python 3.4+ only.
 import numpy as np
-import networks ; reload(networks)
-import experiments; reload(experiments)
-import lab_manager ; reload(lab_manager)
+import networks
+import neuron_models as nm
+import experiments
+import lab_manager
+# from importlib import reload  # Python 3.4+ only.
+# reload(networks)
+# reload(experiments)
+# reload(lab_manager)
 
-# Step 1: Pick a network
-num_neurons_layer_1, num_neurons_layer_2 = 2, 3
-net = networks.HHSTDPFeedForwardFC2Layer(
-    num_neurons_layer_1, num_neurons_layer_2)
+# Step 1: Pick a network and visualize it
+neuron_nums = [2,1]
+net = networks.get_multilayer_fc(
+    nm.HHNeuronWithCa, nm.PlasticNMDASynapse, neuron_nums)
+networks.draw_layered_digraph(net)
 
 # step 2: design an experiment. (Fixing input currents really)
-experiments.delay_pulses_on_layer_1_and_2(net)
+experiments.delay_pulses_on_layer_0_and_1(net)
 
 # step 3: ask our lab manager to set up the lab for the experiment.
 f, initial_conditions = lab_manager.set_up_lab(net)

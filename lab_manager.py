@@ -17,39 +17,47 @@ set_up_lab(net):
 Prepare all the ODEs and impose initial coonditions.
 """
 def set_up_lab(net):
+    neurons = net.nodes()
     # Have the ODEs ready construct a generator for that
     def f():
         ii = 0 # integration index
-        adja_list = net.adja_list # the list of lists of pre-synaptic neurons
-        synapse_lists = net.edges_list # the list of lists of pre-synapses
+        # adja_list = net.adja_list # the list of lists of pre-synaptic neurons
+        # synapse_lists = net.edges_list # the list of lists of pre-synapses
         # step 3a: fix the integration indices sequencially
-        neurons = net.vertexs
         for (n, pos_neuron) in enumerate(neurons):
-            pos_neuron.fix_neuron_index(n)
+            pos_neuron.set_neuron_index(n) # maybe it will be usefull?
             if pos_neuron.DIM: # same as if pos_neuron.DIM > 0
-                pos_neuron.fix_integration_index(ii)
+                pos_neuron.set_integration_index(ii)
                 ii += pos_neuron.DIM
-            pre_synapses = synapse_lists[n]
-            for synapse in pre_synapses:
+                pre_synapses =  (
+                    net[pre_neuron][pos_neuron]["synapse"] # order matter!
+                    for pre_neuron in net.predecessors(pos_neuron))
+            for pre_neuron in net.predecessors(pos_neuron):
+                synapse = net[pre_neuron][pos_neuron]["synapse"]
                 if synapse.DIM:
-                    synapse.fix_integration_index(ii)
+                    synapse.set_integration_index(ii)
                     ii += synapse.DIM
         # step 3b: must yield the derivatives in the exact same order in step 3a
         for (n, pos_neuron) in enumerate(neurons):
-            pre_neurons = [neurons[m] for m in adja_list[n]]
-            pre_synapses = synapse_lists[n]
+            pre_neurons = [neuron for neuron in net.predecessors(pos_neuron)] # can try replace [] -> ()
+            pre_synapses = [
+                net[pre_neuron][pos_neuron]["synapse"]
+                for pre_neuron in net.predecessors(pos_neuron)]
             yield from pos_neuron.dydt(pre_synapses, pre_neurons)
-            for (j, synapse) in enumerate(pre_synapses):
-                yield from synapse.dydt(pre_neurons[j], pos_neuron)
+            for pre_neuron in net.predecessors(pos_neuron):
+                synapse = net[pre_neuron][pos_neuron]["synapse"]
+                yield from synapse.dydt(pre_neuron, pos_neuron)
     # Impose initial conditions
     initial_conditions = []
-    neurons = net.vertexs # the list of all neruons
-    synapse_lists = net.edges_list # the list of lists of pre-synapses
+    #neurons = net.vertexs # the list of all neruons
+    #synapse_lists = net.edges_list # the list of lists of pre-synapses
     # Must follow the same order in the appearance in f()
     for (n, pos_neuron) in enumerate(neurons):
-        pre_synapses = synapse_lists[n]
         if pos_neuron.DIM:
             initial_conditions += pos_neuron.get_initial_condition()
+        pre_synapses = (
+            net[pre_neuron][pos_neuron]["synapse"]
+            for pre_neuron in net.predecessors(pos_neuron))
         for synapse in pre_synapses:
             if synapse.DIM:
                 initial_conditions += synapse.get_initial_condition()
@@ -76,12 +84,9 @@ sample_plot(data, net):
 Just a demo. Nothing special really.
 """
 def sample_plot(time_sampled_range, data, net):
-    if not isinstance(net,networks.HHSTDPFeedForwardFC2Layer):
-        print("Maybe next time...")
-        return
-    neuron_1 = net.layer_1[0] # just pick one neuron from each layer
-    neuron_2 = net.layer_2[0]
-    syn = net.edges_list[neuron_2.ni][0]
+    neuron_1 = list(net.layers[0].nodes)[0] # just pick one neuron from each layer
+    neuron_2 = list(net.layers[1].nodes)[0]
+    syn = net[neuron_1][neuron_2]["synapse"]
     THETA_D = syn.THETA_D
     THETA_P = syn.THETA_P
 
@@ -106,7 +111,6 @@ def sample_plot(time_sampled_range, data, net):
         axes[-1].set_xlabel("time [ms]")
         plt.suptitle("Neuron {}".format(n))
 
-    syn = net.edges_list[neuron_2.ni][0]
     ii = syn.ii
     plt.figure()
     syn_weight = data[:,ii]
