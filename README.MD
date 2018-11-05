@@ -39,4 +39,5 @@ Jonathan C.C. Lam [https://github.com/ChunCheong]
 
 ## Acknowledgments
 
-I would have something to say here if MSR is supporting me.
+The author would like to thanks his two cats for warming his keyboard when
+coding.
