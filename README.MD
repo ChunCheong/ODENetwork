@@ -31,7 +31,8 @@ You might also want look at the examples under "/jitcode_example".
 
 ## Authors
 
-Jonathan C.C. Lam [https://github.com/ChunCheong][https://www.linkedin.com/in/jonathan-chun-cheong-lam-707b25143]
+Jonathan C.C. Lam [https://github.com/ChunCheong]
+[https://www.linkedin.com/in/jonathan-chun-cheong-lam-707b25143]
 
 (And put you name here if you want to join the band!)
 
