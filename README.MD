@@ -20,8 +20,5 @@ Jonathan C.C. Lam [https://github.com/ChunCheong]
 
 
 ## Acknowledgments
-The project has be benefited greatly from tow open source projects.
-* NetworkX
-* JiTCODE
 
-This would simply be impossible without them.
+I would have something to say here if MSR is supporting me.
