@@ -34,7 +34,7 @@ You might also want look at the examples under "/jitcode_example".
 Jonathan C.C. Lam [https://github.com/ChunCheong]
 [https://www.linkedin.com/in/jonathan-chun-cheong-lam-707b25143]
 
-David Li
+David Li (UCSD)
 (And put you name here if you want to join the band!)
 
 
