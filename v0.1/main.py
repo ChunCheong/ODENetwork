@@ -8,7 +8,6 @@ import lab_manager
 # reload(networks)
 # reload(experiments)
 # reload(lab_manager)
-
 # Step 1: Pick a network and visualize it
 neuron_nums = [2,1] # number of neurons in each layer
 net = networks.get_multilayer_fc(
