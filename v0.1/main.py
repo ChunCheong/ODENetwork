@@ -11,7 +11,7 @@ import lab_manager
 # Step 1: Pick a network and visualize it
 neuron_nums = [2,1] # number of neurons in each layer
 net = networks.get_multilayer_fc(
-    nm.HHNeuronWithCa, nm.PlasticNMDASynapse, neuron_nums)
+    nm.HHNeuronWithCa, nm.PlasticNMDASynapseWithCa, neuron_nums)
 networks.draw_layered_digraph(net)
 
 # step 2: design an experiment. (Fixing input currents really)

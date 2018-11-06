@@ -207,7 +207,12 @@ def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
                 THETA_D = synapse.THETA_D
                 THETA_P = synapse.THETA_P
                 ii = synapse.ii
-                plt.figure()
+                fig, axes = plt.subplots(2,1,sharex=True)
                 syn_weight = data[:,ii]
-                plt.plot(time_sampled_range, syn_weight, label="synaptic weight")
-                plt.title("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
+                ca = data[:,ii+2]
+                axes[0].plot(time_sampled_range, syn_weight, label="synaptic weight")
+                axes[1].plot(time_sampled_range, ca, label="Ca")
+                axes[1].legend()
+                axes[1].axhline(THETA_D, color="orange", label="theta_d")
+                axes[1].axhline(THETA_P, color="green", label="theta_p")
+                plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))

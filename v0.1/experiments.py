@@ -13,15 +13,15 @@ import math
 """
 a simple experiment playing with calcium-based STDP in a 2-layer FC network
 """
-def delay_pulses_on_layer_0_and_1(net, i_max=50.):
+def delay_pulses_on_layer_0_and_1(net, dts, i_max=50.):
     #i_max = 50. #5. # (some unit)
     t0 = 50. # ms
-    dt = 10.
+    #dts = 10.
     w = 1. #ms
-    for neuron in net.layers[0].nodes():
-        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0,w) # the jitcode t
+    for (i,neuron) in enumerate(net.layers[0].nodes()):
+        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0-dts[i],w) # the jitcode t
     for neuron in net.layers[1].nodes():
-        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0+dt,w)
+        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0,w)
 
 def constant_current_on_top_layer(net, i_max=50.):
     #i_max = 50. #5. # (some unit)
@@ -42,12 +42,12 @@ def get_gaussian_clusters(num_cluster=2, num_dim=2, num_sample=100):
     i = 0
     mean = [x_means[i], y_means[i]]
     g0 = np.random.multivariate_normal(mean, cov, num_sample)
-    g0 = np.clip(g0, 0., 1.)
+    g0 = np.clip(g0, 0.1, 1.)
     # gaussian 1
     i = 1
     mean = [x_means[i], y_means[i]]
     g1 = np.random.multivariate_normal(mean, cov, num_sample)
-    g1 = np.clip(g1, 0., 1.)
+    g1 = np.clip(g1, 0.1, 1.)
     return g0, g1
 
 def draw_from_gaussian_clusters(i, num_sample=1):
@@ -55,7 +55,7 @@ def draw_from_gaussian_clusters(i, num_sample=1):
     y_means = [0.2, 0.8]
     cov = 0.01*np.diag([1., 1.])  # diagonal covariance
     mean = [x_means[i], y_means[i]]
-    return np.clip(np.random.multivariate_normal(mean, cov, num_sample), 0., 1.)
+    return np.clip(np.random.multivariate_normal(mean, cov, num_sample), 0.1, 1.)
 
 def poisson_train(rates, time_total=100.):
     trains = []

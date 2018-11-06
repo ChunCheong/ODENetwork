@@ -15,26 +15,28 @@ reload(lab_manager)
 # Step 1: Pick a network and visualize it
 neuron_nums = [2,1]
 net = networks.get_multilayer_fc(
-    nm.HHNeuronWithCa, nm.PlasticNMDASynapse, neuron_nums)
+    nm.HHNeuronWithCa, nm.PlasticNMDASynapseWithCa, neuron_nums)
 #networks.draw_layered_digraph(net)
 
 # step 2: design an experiment. (Fixing input currents really)
-#i_max = 30.
-#experiments.delay_pulses_on_layer_0_and_1(net, i_max=i_max)
+i_max = 30.
+dts = [5., -5.]
+#experiments.delay_pulses_on_layer_0_and_1(net, dts, i_max=i_max)
+#total_time = 100.
 # import matplotlib.pylab as plt
 # plt.figure()
 # plt.plot(input_signal[0].T[0], input_signal[0].T[1], marker="o", linestyle="")
 # plt.plot(input_signal[1].T[0], input_signal[1].T[1], marker="x", linestyle="")
 i_max=50.
 num_sniffs=10
-time_per_sniff=100.
+time_per_sniff=500.
 total_time = num_sniffs*time_per_sniff
-base_rate = 0.1
+base_rate = 0.05
 experiments.feed_gaussian_rate_poisson_spikes(
     net, base_rate, i_max=i_max, num_sniffs=num_sniffs,
     time_per_sniff=time_per_sniff)
 
-list(net.nodes())[1].i_inj
+
 # step 3: ask our lab manager to set up the lab for the experiment.
 f, initial_conditions = lab_manager.set_up_lab(net)
 dir(list(net.nodes())[0])

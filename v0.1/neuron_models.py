@@ -55,12 +55,12 @@ class PlasticNMDASynapse:
     V_REW_NMDA = 2 # NMDA voltage response width, unit: mV
     # time constants
     TAU_CA = 5.
-    TAU_W = 100.
+    TAU_W = 1000.
     # stdp stuff
     THETA_P = 1.3
     THETA_D = 1.
-    GAMMA_P = 22
-    GAMMA_D = 10
+    GAMMA_P = 220
+    GAMMA_D = 100
     W_STAR = 0.5
 
     # Dimension
@@ -112,7 +112,7 @@ class PlasticNMDASynapseWithCa:
     V_REW_NMDA = 2 # NMDA voltage response width, unit: mV
     # CALCIUM
     CA_EQM = 0.
-    AVO_CONST = 0.1 # "Avogadros" constant, relate calcium concentraion and current
+    AVO_CONST = 0.03 # "Avogadros" constant, relate calcium concentraion and current
     # time constants
     TAU_CA = 5.
     TAU_W = 1000.
@@ -163,7 +163,7 @@ class PlasticNMDASynapseWithCa:
         yield self.AVO_CONST*(pos_neuron.i_ca(v_pos, a_pos, b_pos) + i_syn_ca) + (self.CA_EQM-self.ca)/self.TAU_CA ###
 
     def get_initial_condition(self):
-        return [0.5, 0., 0.] ###
+        return [0.5+ 0.1*np.random.rand(), 0., 0.] ###
 
 
 class HHNeuronWithCa:
@@ -349,4 +349,4 @@ class HHNeuronWithCa:
         return - self.COND_SYN*W_ij*rho_ij*(Vm_po - self.RE_PO_SYN)
 
     def i_syn_ca_ij(self, Vm_po, rho_ij, W_ij):
-        return - self.COND_CA_SYN*W_ij*rho_ij*(Vm_po - self.RE_PO_CA)
+        return - self.COND_CA_SYN*0.5*rho_ij*(Vm_po - self.RE_PO_CA)
