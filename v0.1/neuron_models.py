@@ -17,7 +17,7 @@ def sigmoid(x):
     return 1./(1.+ symengine.exp(-x))
 
 def heaviside(x):
-    K = 1e3 # some big number
+    K = 1e2 # some big number
     return sigmoid(K*x)
 
 def pulse(t,t0,w):
@@ -96,6 +96,75 @@ class PlasticNMDASynapse:
 
     def get_initial_condition(self):
         return [np.random.rand(), 0.]
+
+
+class PlasticNMDASynapseWithCa:
+    """
+    A plastic synaspe
+    """
+    # Nernst/reversal potentials
+    HF_PO_NMDA = 20 # NMDA half potential, unit: mV
+    # Transmitter shit
+    MAX_NMDA = 1. # it is always one!!! don't chnage it
+    ALPHA_NMDA = 1.
+    BETA_NMDA = 5.
+    # Voltage response width (sigma)
+    V_REW_NMDA = 2 # NMDA voltage response width, unit: mV
+    # CALCIUM
+    CA_EQM = 0.
+    AVO_CONST = 0.1 # "Avogadros" constant, relate calcium concentraion and current
+    # time constants
+    TAU_CA = 5.
+    TAU_W = 1000.
+    # stdp stuff
+    THETA_P = 1.3
+    THETA_D = 1.
+    GAMMA_P = 220
+    GAMMA_D = 100
+    W_STAR = 0.5
+
+    # Dimension
+    #DIM = 2
+    DIM = 3
+    def __init__(self,para=None):
+        """
+        Args:
+            para: list of instance specific parameters
+        """
+        # self.rho_gate = y(i)
+        # self.syn_weight = y(i+1)
+        self.ii = None # integration index
+        self.syn_weight = None #y(i)
+        self.rho_gate = None
+        self.ca = None
+
+    def set_integration_index(self, i):
+        self.ii = i # integration index
+        self.syn_weight = y(i)
+        self.rho_gate = y(i+1)
+        self.ca = y(i+2) ###
+
+    def dydt(self, pre_neuron, pos_neuron):
+        v_pre = pre_neuron.v_mem
+        v_pos = pos_neuron.v_mem ###
+        a_pos = pos_neuron.a_gate ###
+        b_pos = pos_neuron.b_gate ###
+        i_syn_ca = pos_neuron.i_syn_ca_ij(v_pos, self.rho_gate, self.syn_weight) ###
+        #ca_pos = pos_neuron.calcium
+        rho = self.rho_gate # some choice has to be made here
+        #rho = pre_neuron.rho_gate
+        wij = self.syn_weight
+        t_conc = self.MAX_NMDA*sigmoid((v_pre-self.HF_PO_NMDA)/self.V_REW_NMDA)
+        yield 1./self.TAU_W*(
+            - wij*(1-wij)*(self.W_STAR-wij)
+            + self.GAMMA_P*(1-wij)*heaviside(self.ca - self.THETA_P)
+            - self.GAMMA_D*wij*heaviside(self.ca - self.THETA_D) )
+        yield self.ALPHA_NMDA*t_conc*(1-rho) - self.BETA_NMDA*rho
+        yield self.AVO_CONST*(pos_neuron.i_ca(v_pos, a_pos, b_pos) + i_syn_ca) + (self.CA_EQM-self.ca)/self.TAU_CA ###
+
+    def get_initial_condition(self):
+        return [0.5, 0., 0.] ###
+
 
 class HHNeuronWithCa:
     """
