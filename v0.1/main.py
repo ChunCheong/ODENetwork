@@ -29,7 +29,7 @@ experiments.feed_gaussian_rate_poisson_spikes(
 f, initial_conditions = lab_manager.set_up_lab(net)
 
 # step 4: run the lab and gather data
-time_sampled_range = np.arange(0., 100, 0.1)
+time_sampled_range = np.arange(0., total_time, 0.1)
 data = lab_manager.run_lab(f, initial_conditions, time_sampled_range)
 
 # Time to witness some magic
