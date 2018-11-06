@@ -9,6 +9,7 @@ import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
+import neuron_models as nm
 import matplotlib.pyplot as plt
 
 """
@@ -18,25 +19,25 @@ Prepare all the ODEs and impose initial coonditions.
 """
 def set_up_lab(net):
     neurons = net.nodes()
+    # step 3a: fix the integration indices sequencially
+    ii = 0 # integration index
+    for (n, pos_neuron) in enumerate(neurons):
+        pos_neuron.set_neuron_index(n) # maybe it will be usefull?
+        if pos_neuron.DIM: # same as if pos_neuron.DIM > 0
+            pos_neuron.set_integration_index(ii)
+            ii += pos_neuron.DIM
+            pre_synapses =  (
+                net[pre_neuron][pos_neuron]["synapse"] # order matter!
+                for pre_neuron in net.predecessors(pos_neuron))
+        for pre_neuron in net.predecessors(pos_neuron):
+            synapse = net[pre_neuron][pos_neuron]["synapse"]
+            if synapse.DIM:
+                synapse.set_integration_index(ii)
+                ii += synapse.DIM
     # Have the ODEs ready construct a generator for that
     def f():
-        ii = 0 # integration index
         # adja_list = net.adja_list # the list of lists of pre-synaptic neurons
         # synapse_lists = net.edges_list # the list of lists of pre-synapses
-        # step 3a: fix the integration indices sequencially
-        for (n, pos_neuron) in enumerate(neurons):
-            pos_neuron.set_neuron_index(n) # maybe it will be usefull?
-            if pos_neuron.DIM: # same as if pos_neuron.DIM > 0
-                pos_neuron.set_integration_index(ii)
-                ii += pos_neuron.DIM
-                pre_synapses =  (
-                    net[pre_neuron][pos_neuron]["synapse"] # order matter!
-                    for pre_neuron in net.predecessors(pos_neuron))
-            for pre_neuron in net.predecessors(pos_neuron):
-                synapse = net[pre_neuron][pos_neuron]["synapse"]
-                if synapse.DIM:
-                    synapse.set_integration_index(ii)
-                    ii += synapse.DIM
         # step 3b: must yield the derivatives in the exact same order in step 3a
         for (n, pos_neuron) in enumerate(neurons):
             pre_neurons = [neuron for neuron in net.predecessors(pos_neuron)] # can try replace [] -> ()
@@ -101,12 +102,12 @@ def sample_plot(time_sampled_range, data, net):
         axes[0].set_ylabel("V_m [mV]")
         axes[0].legend()
         axes[1].plot(time_sampled_range, ca, label="[Ca]")
-        axes[1].set_ylabel("[a.u.]")
+        axes[1].set_ylabel("Calcium [a.u.]")
         axes[1].axhline(THETA_D, color="orange", label="theta_d")
         axes[1].axhline(THETA_P, color="green", label="theta_p")
         axes[1].legend()
         axes[2].plot(time_sampled_range, i_inj, label="i_inj")
-        axes[2].set_ylabel("[some unit]")
+        axes[2].set_ylabel(" Injected Current [some unit]")
         axes[2].legend()
         axes[-1].set_xlabel("time [ms]")
         plt.suptitle("Neuron {}".format(n))
@@ -118,4 +119,95 @@ def sample_plot(time_sampled_range, data, net):
     plt.xlabel("time [ms]")
     plt.legend()
     plt.show()
-    return
+
+"""
+show_layer(time_sampled_range, data, net, layer_idx):
+
+Show a neuron in layer_idx and the neruon it synapses onto, and the synapse.
+"""
+# def show_layer(time_sampled_range, data, net, layer_idx):
+#     pre_neuron = list(net.layers[layer_idx].nodes)[0] # just pick one neuron from each layer
+#     pos_neuron = list(net.successors(pre_neuron))[0]
+#     synapse = net[pre_neuron][pos_neuron]["synapse"]
+#     THETA_D = synapse.THETA_D
+#     THETA_P = synapse.THETA_P
+#     labels= ["Pre-synaptic", "Post-synaptic"]
+#     for (n, neuron) in enumerate([pre_neuron, pos_neuron]):
+#         ii = neuron.ii
+#         v_m = data[:,ii]
+#         ca = data[:,ii+6]
+#         if neuron.i_inj is None:
+#             fig, axes = plt.subplots(2,1,sharex=True)
+#         else:
+#             fig, axes = plt.subplots(3,1,sharex=True)
+#             i_inj = electrodes.sym2num(t, neuron.i_inj)
+#             i_inj = i_inj(time_sampled_range)
+#             axes[2].plot(time_sampled_range, i_inj, label="i_inj")
+#             axes[2].set_ylabel("[some unit]")
+#             axes[2].legend()
+#         axes[0].plot(time_sampled_range, v_m, label="V_m")
+#         axes[0].set_ylabel("V_m [mV]")
+#         axes[0].legend()
+#         axes[1].plot(time_sampled_range, ca, label="[Ca]")
+#         axes[1].set_ylabel("[a.u.]")
+#         axes[1].axhline(THETA_D, color="orange", label="theta_d")
+#         axes[1].axhline(THETA_P, color="green", label="theta_p")
+#         axes[1].legend()
+#         axes[-1].set_xlabel("time [ms]")
+#         plt.suptitle(labels[n])
+#     if synapse is not None:
+#         ii = synapse.ii
+#         plt.figure()
+#         syn_weight = data[:,ii]
+#         plt.plot(time_sampled_range, syn_weight, label="w_ij")
+#         plt.xlabel("time [ms]")
+#         plt.legend()
+#         plt.show()
+
+"""
+show_layer(time_sampled_range, data, net, layer_idx):
+
+Show a neuron in layer_idx and the neruon it synapses onto, and the synapse.
+"""
+def show_all_neuron_in_layer(time_sampled_range, data, net, layer_idx):
+    THETA_D = nm.PlasticNMDASynapse.THETA_D
+    THETA_P = nm.PlasticNMDASynapse.THETA_P
+
+    pre_neurons = net.layers[layer_idx].nodes()
+    for (n, pre_neuron) in enumerate(pre_neurons):
+        ii = pre_neuron.ii
+        v_m = data[:,ii]
+        ca = data[:,ii+6]
+        if pre_neuron.i_inj is None:
+            fig, axes = plt.subplots(2,1,sharex=True)
+        else:
+            fig, axes = plt.subplots(3,1,sharex=True)
+            i_inj = electrodes.sym2num(t, pre_neuron.i_inj)
+            i_inj = i_inj(time_sampled_range)
+            axes[2].plot(time_sampled_range, i_inj, label="i_inj")
+            axes[2].set_ylabel("I [some unit]")
+            axes[2].legend()
+        axes[0].plot(time_sampled_range, v_m, label="V_m")
+        axes[0].set_ylabel("V_m [mV]")
+        axes[0].legend()
+        axes[1].plot(time_sampled_range, ca, label="[Ca]")
+        axes[1].set_ylabel(" Ca [a.u.]")
+        axes[1].axhline(THETA_D, color="orange", label="theta_d")
+        axes[1].axhline(THETA_P, color="green", label="theta_p")
+        axes[1].legend()
+        axes[-1].set_xlabel("time [ms]")
+        plt.suptitle("Neuron {} in layer {}".format(pre_neuron.ni, layer_idx))
+
+def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
+        pos_neurons = net.layers[layer_idx].nodes()
+        for pos_neuron in pos_neurons:
+            pre_neurons = list(net.predecessors(pos_neuron))
+            for pre_neuron in pre_neurons:
+                synapse = net[pre_neuron][pos_neuron]["synapse"]
+                THETA_D = synapse.THETA_D
+                THETA_P = synapse.THETA_P
+                ii = synapse.ii
+                plt.figure()
+                syn_weight = data[:,ii]
+                plt.plot(time_sampled_range, syn_weight, label="synaptic weight")
+                plt.title("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))

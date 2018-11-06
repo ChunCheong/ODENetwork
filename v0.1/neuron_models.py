@@ -55,12 +55,12 @@ class PlasticNMDASynapse:
     V_REW_NMDA = 2 # NMDA voltage response width, unit: mV
     # time constants
     TAU_CA = 5.
-    TAU_W = 1000.
+    TAU_W = 100.
     # stdp stuff
     THETA_P = 1.3
     THETA_D = 1.
-    GAMMA_P = 220
-    GAMMA_D = 100
+    GAMMA_P = 22
+    GAMMA_D = 10
     W_STAR = 0.5
 
     # Dimension
@@ -95,7 +95,7 @@ class PlasticNMDASynapse:
         yield self.ALPHA_NMDA*t_conc*(1-rho) - self.BETA_NMDA*rho
 
     def get_initial_condition(self):
-        return [0.5, 0.]
+        return [np.random.rand(), 0.]
 
 class HHNeuronWithCa:
     """
@@ -166,7 +166,7 @@ class HHNeuronWithCa:
             para: list of instance specific parameters
             i_inj: injected current
         """
-        self.i_inj = None # injected currents
+        self.i_inj = 0 # injected currents
         self.ii = None # integration index
         self.ni = None # neruon index
         self.v_mem = None #y(i) # membrane potential

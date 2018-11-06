@@ -6,6 +6,7 @@ Define layers or combination of layers here.
 import numpy as np
 import neuron_models as nm
 import networkx as nx
+import matplotlib.pyplot as plt
 
 """ The most basic class"""
 class LayeredDiGraph(nx.DiGraph):
@@ -66,4 +67,5 @@ def draw_layered_digraph(net):
             ys = np.linspace(0., 1., num=len(layer.nodes))
         for (n, neuron) in enumerate(layer.nodes):
             pos[neuron] = [xs[l], ys[n]]
+    plt.figure()
     nx.draw_networkx(net, pos=pos, with_labels=False)
