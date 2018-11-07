@@ -13,7 +13,7 @@ def f():
 ODE = jitcode(f)
 ODE.generate_f_C(simplify=False, do_cse=False)#, chunk_size=150)
 ODE.set_integrator('dopri5')
-ODE.set_initial_value([0.],)
+ODE.set_initial_value([0.],0.)
 
 ts = np.arange(0., 2., 0.1)
 data = np.vstack(ODE.integrate(t) for t in ts)
