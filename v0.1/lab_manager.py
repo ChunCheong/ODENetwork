@@ -7,6 +7,7 @@ It does what a lab manager should be doing. i.e
 """
 import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
+from jitcode import integrator_tools
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
@@ -76,7 +77,13 @@ def run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5'):
     ODE.generate_f_C(simplify=False, do_cse=False)#, chunk_size=150)
     ODE.set_integrator(integrator)# ,nsteps=10000000)
     ODE.set_initial_value(initial_conditions, 0.0)
-    data = np.vstack(ODE.integrate(T) for T in time_sampled_range)
+    data = np.zeros((len(time_sampled_range), dim_total)) # will set it to np.empty
+    for (i,T) in enumerate(time_sampled_range):
+        try:
+            data[i,:] = ODE.integrate(T)
+        except integrator_tools.UnsuccessfulIntegration:
+            print("gotcha")
+            return data
     return data
 
 """
