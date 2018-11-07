@@ -18,7 +18,7 @@ ODE.generate_f_C(simplify=False, do_cse=False)#, chunk_size=150)
 ODE.set_integrator('dopri5')
 ODE.set_initial_value([0.],0.)
 
-ts = np.arange(0., 2., 0.001)
+ts = np.arange(0., 2000., 1.) # exp(K*2000) should really cause overflow
 data = np.vstack(ODE.integrate(t) for t in ts)
 plt.plot(ts, data)
 plt.show()
