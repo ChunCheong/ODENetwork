@@ -86,6 +86,14 @@ def run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5'):
             return data
     return data
 
+
+"""
+Reset all the input currents to be zero.
+"""
+def reset_lab(net):
+    for neuron in net.nodes:
+        neuron.i_inj = 0
+
 """
 sample_plot(data, net):
 
