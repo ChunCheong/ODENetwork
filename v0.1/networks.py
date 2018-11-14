@@ -7,6 +7,7 @@ import numpy as np
 import neuron_models as nm
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
 
 """ The most basic class"""
 class LayeredDiGraph(nx.DiGraph):
@@ -69,3 +70,106 @@ def draw_layered_digraph(net):
             pos[neuron] = [xs[l], ys[n]]
     plt.figure()
     nx.draw_networkx(net, pos=pos, with_labels=False)
+
+
+"""
+Antenna Lobe Functions
+-------------------------------------------------------------
+"""
+
+
+
+def connect_layer(layer, connections, prob, g):
+    for n in layer:
+        for j in layer:
+            if n != j and random.random() < prob:
+                layer.add_edge(n, j, synapse = connections(g))
+                
+def interconnect(layer1, layer2, synapse1, synapse2, prob1, prob2, g1, g2):
+    net3 = nx.compose(layer1, layer2)
+    neurons1, neurons2 = layer1.layers[-1].nodes(), layer2.layers[0].nodes()
+    for neuron1 in neurons1:
+        for neuron2 in neurons2:
+            if random.random() < prob1:
+                net3.add_edge(neuron1, neuron2, synapse = synapse1(g1))
+            if random.random() < prob2:
+                net3.add_edge(neuron2, neuron1, synapse = synapse2(g2))
+    net3.layers = layer1.layers + layer2.layers
+    net3.labels = layer1.labels + layer2.labels
+    return net3
+
+#specifically for the 6PN, 2LN network in Fig1 Bazhenov 2001
+def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
+    gLN = 400.0
+    gLNPN = 800.0
+    gPN = 350.0
+    gPNLN = 300.0
+    
+    #connect LNs together
+    connect_layer(LNs, LNSynapse, 1.0, gLN)
+    
+    p = PNs.nodes()
+    #connect PNs together
+    PNs.add_edge(p[0], p[1], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[0], p[3], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[1], p[5], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[2], p[0], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[2], p[1], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[2], p[4], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[4], p[3], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[4], p[5], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[5], p[3], synapse = PNSynapse(gPN))
+    PNs.add_edge(p[5], p[2], synapse = PNSynapse(gPN))
+    
+    #connect LNs and PNs together
+    AL = nx.compose(LNs, PNs)
+    nLN, nPN = LNs.nodes(), PNs.nodes()
+    
+    AL.add_edge(nLN[0], nPN[0], synapse = LNSynapse(gLNPN))
+    AL.add_edge(nLN[0], nPN[1], synapse = LNSynapse(gLNPN))
+    AL.add_edge(nLN[0], nPN[2], synapse = LNSynapse(gLNPN))
+    AL.add_edge(nLN[1], nPN[3], synapse = LNSynapse(gLNPN))
+    AL.add_edge(nLN[1], nPN[4], synapse = LNSynapse(gLNPN))
+    AL.add_edge(nLN[1], nPN[5], synapse = LNSynapse(gLNPN))
+    
+    AL.add_edge(nPN[1], nLN[0], synapse = PNSynapse(gPNLN))
+    AL.add_edge(nPN[3], nLN[0], synapse = PNSynapse(gPNLN))
+    AL.add_edge(nPN[1], nLN[1], synapse = PNSynapse(gPNLN))
+    AL.add_edge(nPN[3], nLN[1], synapse = PNSynapse(gPNLN))
+    AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
+    
+    AL.layers = LNs.layers + PNs.layers
+    AL.labels = LNs.labels + PNs.labels
+    
+    return AL
+    
+#Creates AL from the 2001 Bazhenov paper
+def create_AL_man(LNClass, PNClass, LNSynapse, PNSynapse): 
+    LNs = get_single_layer(LNClass, 2)
+    PNs = get_single_layer(PNClass, 6)
+    
+    AL = manual_connect(LNs, PNs, LNSynapse, PNSynapse)
+    return AL
+
+#Create_AL creates AL with random connections with prob 0.5
+def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums):
+    num_layer = len(neuron_nums)
+    LNs = get_single_layer(LNClass, neuron_nums[0])
+    PNs = get_single_layer(PNClass, neuron_nums[1])
+    
+    gLN = 400.0
+    gLNPN = 800.0
+    gPN = 350.0
+    gPNLN = 300.0
+    connect_prob_LN = 0.5
+    connect_prob_PN = 0.5
+    connect_layer(LNs, LNSynapse, connect_prob_LN, gLN)
+    connect_layer(PNs, PNSynapse, connect_prob_PN, gPN)
+    
+    inter_connect_prob_LN = 0.5
+    inter_connect_prob_PN = 0.5
+    AL = interconnect(LNs, PNs, LNSynapse, PNSynapse, 
+                      inter_connect_prob_LN, inter_connect_prob_PN,
+                      gLNPN, gPNLN)
+    return AL
+
