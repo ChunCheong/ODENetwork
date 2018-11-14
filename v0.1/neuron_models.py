@@ -649,7 +649,7 @@ class PN:
 
     #adapted from bazhenov
     def tu(self, V):
-        return 0.27/(symengine.exp((V+46)/5.0)+symengine.exp(-(V+238)/37.5)) \
+        return 0.27/(symengine.exp((V+46)/5.0))+symengine.exp(-(V+238)/37.5) \
                     +5.1/2*(1+symengine.tanh((V+57)/3))
 
     def I_Na(self, V, m, h): return self.g_Na_PN*m**3*h*(V - self.E_Na_PN) #nS*mV = pA
