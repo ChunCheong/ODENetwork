@@ -42,28 +42,22 @@ libraries that is compatible with our code:
 
 #### Linux:
 
-Python: 3.6.4 |Anaconda, Inc.| (default, Mar 13 2018, 01:15:57)
-[GCC 7.2.0]
-
-Jitcode: 1.3.2
-
-scipy: 1.1.0
-
-networkx: 1.1.0
+##### Environment 1.
+* Python: 3.6.4 |Anaconda, Inc.| (default, Mar 13 2018, 01:15:57) [GCC 7.2.0]
+* Jitcode: 1.3.2
+* scipy: 1.1.0
+* networkx: 1.1.0
 
 Any error message(s) from scipy, jitcode, integrators...etc? : None
 
 #### Mac
 
 #### Windows:
-
-Python: 3.6.4 |Anaconda, Inc.| (default, Jan 16 2018, 10:22:32) [MSC v.1900 64 bit (AMD64)]
-
-Jitcode: 1.3.2
-
-scipy: 1.0.0
-
-networkx: 1.0.0
+##### Environment 1.
+* Python: 3.6.4 |Anaconda, Inc.| (default, Jan 16 2018, 10:22:32) [MSC v.1900 64 bit (AMD64)]
+* Jitcode: 1.3.2
+* scipy: 1.0.0
+* networkx: 1.0.0
 
 Any error message(s) from scipy, jitcode, integrators...etc? : None
 
