@@ -5,8 +5,8 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
-def heaviside(x,K=1.e0):
-    K = 1e3 # some big number
+
+def heaviside(x,K=1.e0): #     K = 1e3 # some big number
     return 1./(1.+ symengine.exp(-K*x))
 
 def f():

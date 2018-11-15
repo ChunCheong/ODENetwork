@@ -1,23 +1,39 @@
+# begin boiler plate for compatibility
+from __future__ import absolute_import, division, print_function
+from __future__ import unicode_literals
+import sys
+if sys.version_info.major > 2:
+    xrange = range
+elif sys.version_info.major == 2:
+    pass
+# end boiler plate for compatibility
+
+import lab_manager_py27 as lm # have to combine two lab_manager later
+
 import scipy as sp
 import pylab as plt
 import numpy as np
 from jitcode import jitcode, y, t
-import symengine
+try:
+    import symengine as sym_backend
+except:
+    import sympy as sym_backend
 import networkx as nx
 import random
 import networks as net
 import neuron_models as nm
-import lab_manager_py27 as lm
 import experiments as ex
+
+# import importlib # only for python 3.4+
+# importlib.reload(lm)
+#importlib.reload(ex)
+
 plt.style.use('ggplot')
 
 #First number is #LNs, second is #PNs
 neuron_nums = [2, 6] # 2 LNs and 6PNs
 #Create_AL creates AL with random connections with prob 0.5
 AL = net.create_AL(nm.LN, nm.PN, nm.Synapse_gaba_LN, nm.Synapse_nAch_PN, neuron_nums)
-
-#Creates 6PN, 2LN network in Fig 1 Bazhenov 2001
-#AL = net.create_AL_man(nm.LN, nm.PN, nm.Synapse_gaba_LN, nm.Synapse_nAch_PN)
 
 #Set up the experiment
 num_layers = 2
@@ -35,6 +51,5 @@ time_sampled_range = np.arange(0., time_len, dt)
 
 data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5')
 
-#Plot
-lm.show_all_neuron_in_layer(time_sampled_range, data, AL, 0)
-lm.plot_LFP(time_sampled_range, data, AL, layer_pn = 1)
+# lm.show_all_neuron_in_layer(time_sampled_range, data, AL, 0)
+# lm.plot_LFP(time_sampled_range, data, AL, layer_pn = 1)
