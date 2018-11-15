@@ -46,9 +46,18 @@ libraries that is compatible with our code:
 * Python: 3.6.4 |Anaconda, Inc.| (default, Mar 13 2018, 01:15:57) [GCC 7.2.0]
 * Jitcode: 1.3.2
 * scipy: 1.1.0
-* networkx: 1.1.0
+* networkx: 2.2
 
 Any error message(s) from scipy, jitcode, integrators...etc? : None
+
+##### Environment 2.
+Python: 2.7.15 |Anaconda custom (64-bit)| (default, Oct 10 2018, 21:32:13) 
+[GCC 7.3.0]
+Jitcode: 0.61
+scipy: 1.1.0
+networkx: 2.2
+
+anaconda2/lib/python2.7/site-packages/scipy/integrate/_ode.py:1177: UserWarning: dopri5: step size becomes too small
 
 #### Mac
 
