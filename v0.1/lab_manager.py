@@ -5,12 +5,25 @@ It does what a lab manager should be doing. i.e
 1. set_up_lab()
 2. run_lab()
 """
+# begin boiler plate for compatibility
+from __future__ import absolute_import, division, print_function
+from __future__ import unicode_literals
+import sys
+if sys.version_info.major > 2:
+    xrange = range
+elif sys.version_info.major == 2:
+    pass
+# end boiler plate for compatibility
+
 import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
 from jitcode import integrator_tools
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
+# For Mac user
+# import matplotlib
+# matplotlib.use("macosx")
 import matplotlib.pyplot as plt
 
 """
@@ -20,10 +33,12 @@ Prepare all the ODEs and impose initial coonditions.
 """
 def set_up_lab(net):
     neurons = net.nodes()
+    neuron_inds = []
     # step 3a: fix the integration indices sequencially
     ii = 0 # integration index
     for (n, pos_neuron) in enumerate(neurons):
         pos_neuron.set_neuron_index(n) # maybe it will be usefull?
+        neuron_inds.append(ii)
         if pos_neuron.DIM: # same as if pos_neuron.DIM > 0
             pos_neuron.set_integration_index(ii)
             ii += pos_neuron.DIM
@@ -64,7 +79,7 @@ def set_up_lab(net):
             if synapse.DIM:
                 initial_conditions += synapse.get_initial_condition()
     initial_conditions = np.array(initial_conditions)
-    return f, initial_conditions
+    return f, initial_conditions, neuron_inds
 
 """
 run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5'):
@@ -212,6 +227,7 @@ def show_all_neuron_in_layer(time_sampled_range, data, net, layer_idx):
         # axes[1].legend()
         axes[-1].set_xlabel("time [ms]")
         plt.suptitle("Neuron {} in layer {}".format(pre_neuron.ni, layer_idx))
+    plt.show()
 
 def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
         pos_neurons = net.layers[layer_idx].nodes()
@@ -231,3 +247,4 @@ def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
                 axes[1].axhline(THETA_D, color="orange", label="theta_d")
                 axes[1].axhline(THETA_P, color="green", label="theta_p")
                 plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
+        plt.show()

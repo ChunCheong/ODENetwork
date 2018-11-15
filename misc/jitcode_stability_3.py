@@ -3,8 +3,8 @@ import symengine
 import numpy as np
 import matplotlib.pyplot as plt
 
-def heaviside(x,K=1.e3):
-    K = 1e3 # some big number
+# observe what happens as you crank up K=1.e0 to K=1.e3
+def heaviside(x,K=1.e0):
     return 1./(1.+ symengine.exp(-K*x))
 
 def f():

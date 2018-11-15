@@ -1,6 +1,15 @@
 """
 Lab manager functions that work with python 2.7
 """
+# begin boiler plate for compatibility
+from __future__ import absolute_import, division, print_function
+from __future__ import unicode_literals
+import sys
+if sys.version_info.major > 2:
+    xrange = range
+elif sys.version_info.major == 2:
+    pass
+# end boiler plate for compatibility
 
 import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
@@ -84,7 +93,7 @@ def show_all_neuron_in_layer(time_sampled_range, data, net, layer_idx):
         # fig = plt.figure()
         ii = neuron.ii
         v_m = data[:,ii]
-        I = map(neuron.i_inj, time_sampled_range)
+        I = list(map(neuron.i_inj, time_sampled_range))
 
         fig, axes = plt.subplots(2,1,sharex=True)
         axes[1].plot(time_sampled_range, I, label="i_inj")
@@ -111,10 +120,3 @@ def plot_LFP(time_sampled_range, data, net, layer_pn = 1):
     plt.plot(t, np.mean(sol[inds], axis = 0))
     plt.show()
     #fig.savefig('LFP62.pdf', bbox_inches='tight')
-
-
-
-
-
-
-
