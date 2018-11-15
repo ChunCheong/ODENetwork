@@ -44,8 +44,11 @@ libraries that is compatible with our code:
 
 Python: 3.6.4 |Anaconda, Inc.| (default, Mar 13 2018, 01:15:57)
 [GCC 7.2.0]
+
 Jitcode: 1.3.2
+
 scipy: 1.1.0
+
 networkx: 1.1.0
 
 Any error message(s) from scipy, jitcode, integrators...etc? : None
@@ -55,13 +58,18 @@ Any error message(s) from scipy, jitcode, integrators...etc? : None
 #### Windows:
 
 Python: 3.6.4 |Anaconda, Inc.| (default, Jan 16 2018, 10:22:32) [MSC v.1900 64 bit (AMD64)]
+
 Jitcode: 1.3.2
+
 scipy: 1.0.0
+
 networkx: 1.0.0
 
 Any error message(s) from scipy, jitcode, integrators...etc? : None
 
-Please kindly add your output from running "compat.py" above.
+Please kindly add your output from running "compat.py" above and tell us if you
+see any error message when running. There are also some known issues with
+matplotlib with Mac user which does not concern us here.
 
 
 ## Authors
