@@ -11,6 +11,8 @@ from jitcode import integrator_tools
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
+import matplotlib
+matplotlib.use("macosx")
 import matplotlib.pyplot as plt
 
 """
@@ -212,6 +214,7 @@ def show_all_neuron_in_layer(time_sampled_range, data, net, layer_idx):
         # axes[1].legend()
         axes[-1].set_xlabel("time [ms]")
         plt.suptitle("Neuron {} in layer {}".format(pre_neuron.ni, layer_idx))
+    plt.show()
 
 def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
         pos_neurons = net.layers[layer_idx].nodes()
@@ -231,3 +234,4 @@ def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
                 axes[1].axhline(THETA_D, color="orange", label="theta_d")
                 axes[1].axhline(THETA_P, color="green", label="theta_p")
                 plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
+        plt.show()

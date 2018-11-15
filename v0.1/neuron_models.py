@@ -8,16 +8,13 @@ To-dos:
 """
 from jitcode import jitcode, y, t
 import numpy as np
-#import sym_backend
-try:
-    import symengine as sym_backend
-except:
-    import sympy as sym_backend
+import symengine
+
 # "Global" constants, if any
 
 # Some very common helper functions
 def sigmoid(x):
-    return 1./(1.+ sym_backend.exp(-x))
+    return 1./(1.+ symengine.exp(-x))
 
 def heaviside(x):
     K = 1e2 # some big number
@@ -331,7 +328,7 @@ class HHNeuronWithCa:
     #     return ALPHA_NMDA*T/(ALPHA_NMDA*T + BETA_NMDA)
 
     def tau_x(self, Vm, V_0, sigma_x, tau_x_0, tau_x_1):
-        return tau_x_0 + tau_x_1*(1-(sym_backend.tanh((Vm - V_0)/sigma_x))**2)
+        return tau_x_0 + tau_x_1*(1-(symengine.tanh((Vm - V_0)/sigma_x))**2)
 
     # def tau_syn(T):
     #     return 1./(ALPHA_NMDA*T + BETA_NMDA)
@@ -405,9 +402,9 @@ class HHNeuron:
         # Constants can be variouse conductances, which can vary across
         # instances.
         self.i_inj = lambda t: 0 # injected currents
-        self.V = None
-        self.m = None
-        self.h = None
+        self.V = None 
+        self.m = None 
+        self.h = None 
         self.n = None
 
     #H-H model
@@ -429,7 +426,7 @@ class HHNeuron:
         nn = self.n
 
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
+        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()), 
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
 
@@ -450,20 +447,20 @@ class HHNeuron:
 
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
 
-    def m0(self, V): return 0.5*(1+sym_backend.tanh((V - self.vm)/self.dvm))
-    def n0(self, V): return 0.5*(1+sym_backend.tanh((V - self.vn)/self.dvn))
-    def h0(self, V): return 0.5*(1+sym_backend.tanh((V - self.vh)/self.dvh))
+    def m0(self, V): return 0.5*(1+symengine.tanh((V - self.vm)/self.dvm))
+    def n0(self, V): return 0.5*(1+symengine.tanh((V - self.vn)/self.dvn))
+    def h0(self, V): return 0.5*(1+symengine.tanh((V - self.vh)/self.dvh))
 
-    def tau_m(self, V): return self.tm0+self.tm1*(1-sym_backend.tanh((V - self.vmt)/self.dvmt)**2)
-    def tau_n(self, V): return self.tn0+self.tn1*(1-sym_backend.tanh((V - self.vnt)/self.dvnt)**2)
-    def tau_h(self, V): return self.th0+self.th1*(1-sym_backend.tanh((V - self.vht)/self.dvht)**2)
+    def tau_m(self, V): return self.tm0+self.tm1*(1-symengine.tanh((V - self.vmt)/self.dvmt)**2)
+    def tau_n(self, V): return self.tn0+self.tn1*(1-symengine.tanh((V - self.vnt)/self.dvnt)**2)
+    def tau_h(self, V): return self.th0+self.th1*(1-symengine.tanh((V - self.vht)/self.dvht)**2)
 
     def I_Na(self, V, m, h): return self.g_Na*m**3*h*(V - self.E_Na) #mS*mV = uA
     def I_K(self, V, n): return self.g_K*n**4*(V - self.E_K)
     def I_L(self, V): return self.g_L*(V - self.E_L)
 
-    def dV_dt(self, V, m, h, n, t, i_syn):
-        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
+    def dV_dt(self, V, m, h, n, t, i_syn): 
+        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) + 
                             self.I_L(V) - self.i_inj(t) + i_syn)
 
     def dm_dt(self, V, m): return (self.m0(V) - m)/self.tau_m(V)
@@ -497,7 +494,7 @@ class Synapse_glu_HH:
     def dydt(self, pre_neuron, pos_neuron):
         Vpre = pre_neuron.V
         r = self.r
-        yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
+        yield (self.alphaR*self.Tm/(1+symengine.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
     def get_params(self):
         return [self.Gglu, self.E_cl]
 
@@ -536,7 +533,7 @@ class Synapse_gaba_HH:
     def dydt(self, pre_neuron, pos_neuron):
         Vpre = pre_neuron.V
         r = self.r
-        yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
+        yield (self.alphaR*self.Tm/(1+symengine.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
 
     def get_params(self):
         return [self.gGABA, self.E_gaba]
@@ -573,9 +570,9 @@ class PN:
         # Constants can be variouse conductances, which can vary across
         # instances.
         self.i_inj = lambda t: 0 # injected currents
-        self.V = None
-        self.m = None
-        self.h = None
+        self.V = None 
+        self.m = None 
+        self.h = None 
         self.n = None
         self.z = None
         self.u = None
@@ -603,7 +600,7 @@ class PN:
 
 
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
+        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()), 
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
 
@@ -627,7 +624,7 @@ class PN:
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
 
     def dV_dt(self, V, m, h, n, z, u, t, i_syn):
-        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
+        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) + 
                         self.I_L(V) + self.I_A(V,z,u) + self.I_KL(V)
                          - self.i_inj(t) + i_syn)
     def dm_dt(self, V, m): return self.a_m(V)*(1-m)-self.b_m(V)*m
@@ -636,24 +633,24 @@ class PN:
     def dz_dt(self, V, z): return (self.z0(V)-z)/self.tz(V)
     def du_dt(self, V, u): return (self.u0(V)-u)/self.tu(V)
 
-    def a_m(self, V): return 0.32*(V - 13.1+self.shift)/(1 - sym_backend.exp(-(V - 13.1+self.shift)/4.0))
-    def b_m(self, V): return 0.28*(V - 40.1+self.shift)/(sym_backend.exp((V-40.1+self.shift)/5.0)-1)
+    def a_m(self, V): return 0.32*(V - 13.1+self.shift)/(1 - symengine.exp(-(V - 13.1+self.shift)/4.0))
+    def b_m(self, V): return 0.28*(V - 40.1+self.shift)/(symengine.exp((V-40.1+self.shift)/5.0)-1)
 
-    def a_h(self, V): return 0.128*sym_backend.exp(-(V-17.0+self.shift)/18.0)
-    def b_h(self, V): return 4.0/(1+sym_backend.exp(-(V-40+self.shift)/5.0))
+    def a_h(self, V): return 0.128*symengine.exp(-(V-17.0+self.shift)/18.0)
+    def b_h(self, V): return 4.0/(1+symengine.exp(-(V-40+self.shift)/5.0))
 
-    def a_n(self, V): return 0.016*(V-35.1+self.shift)/(1-sym_backend.exp(-(V-35.1+self.shift)/5.0))
-    def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
+    def a_n(self, V): return 0.016*(V-35.1+self.shift)/(1-symengine.exp(-(V-35.1+self.shift)/5.0))
+    def b_n(self, V): return 0.25*symengine.exp(-(V-20+self.shift)/40.0)
 
-    def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
-    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+    def z0(self, V): return 0.5*(1-symengine.tanh(-0.5*(V+60)/8.5))
+    def tz(self, V): return 0.27/symengine.exp((V+35.8)/19.7)+symengine.exp(-(V+79.7)/12.7)+0.1
 
-    def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
+    def u0(self, V): return 0.5*(1-symengine.tanh(0.5*(V+78)/6.0))
 
     #adapted from bazhenov
     def tu(self, V):
-        return 0.27/(sym_backend.exp((V+46)/5.0))+sym_backend.exp(-(V+238)/37.5) \
-                    +5.1/2*(1+sym_backend.tanh((V+57)/3))
+        return 0.27/(symengine.exp((V+46)/5.0)+symengine.exp(-(V+238)/37.5)) \
+                    +5.1/2*(1+symengine.tanh((V+57)/3))
 
     def I_Na(self, V, m, h): return self.g_Na_PN*m**3*h*(V - self.E_Na_PN) #nS*mV = pA
     def I_K(self, V, n): return self.g_K_PN*n*(V - self.E_K_PN)
@@ -685,7 +682,7 @@ class LN:
 
     def __init__(self, para = None):
         self.i_inj = lambda t: 0 # injected currents
-        self.V = None
+        self.V = None 
         self.n = None
         self.q = None
         self.s = None
@@ -713,7 +710,7 @@ class LN:
         vv = self.v
         Ca = self.Ca
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
+        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()), 
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
 
@@ -735,17 +732,17 @@ class LN:
 
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
 
-    def a_nl(self, V): return 0.02*(-(35.0+V)/(sym_backend.exp(-(35.0+V)/5.0)-1.0))
-    def b_nl(self, V): return 0.5*sym_backend.exp((-(40.0+V)/40.0))
+    def a_nl(self, V): return 0.02*(-(35.0+V)/(symengine.exp(-(35.0+V)/5.0)-1.0))
+    def b_nl(self, V): return 0.5*symengine.exp((-(40.0+V)/40.0))
 
     def nl0(self, V): return self.a_nl(V)/(self.a_nl(V)+self.b_nl(V))
     def tnl(self, V): return 4.65/(self.a_nl(V)+self.b_nl(V))
 
-    def s0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+20.0)/6.5))
+    def s0(self, V): return 0.5*(1-symengine.tanh(-0.5*(V+20.0)/6.5))
     def ts(self, V): return 1+(V+30)*0.014
 
-    def v0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+25.0)/12.0))
-    def tv(self, V): return 0.3*sym_backend.exp((V-40)/13.0)+0.002*sym_backend.exp(-(V-60.0)/29.0)
+    def v0(self, V): return 0.5*(1-symengine.tanh(0.5*(V+25.0)/12.0))
+    def tv(self, V): return 0.3*symengine.exp((V-40)/13.0)+0.002*symengine.exp(-(V-60.0)/29.0)
 
     def q0(self, Ca): return Ca/(Ca+2.0)
     def tq(self, Ca): return 100.0/(Ca+2.0)
@@ -797,7 +794,7 @@ class Synapse_gaba_LN:
     def dydt(self, pre_neuron, pos_neuron):
         Vpre = pre_neuron.V
         r = self.r
-        yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
+        yield (self.alphaR*self.Tm/(1+symengine.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
 
     def get_params(self):
         return [self.gGABA, self.E_gaba]
@@ -835,7 +832,7 @@ class Synapse_nAch_PN:
     def dydt(self, pre_neuron, pos_neuron):
         Vpre = pre_neuron.V
         r = self.r
-        yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
+        yield (self.alphaR*self.Tm/(1+symengine.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
 
     def get_params(self):
         return [self.gnAch, self.E_nAch]
