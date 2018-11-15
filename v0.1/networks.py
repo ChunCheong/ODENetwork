@@ -6,6 +6,8 @@ Define layers or combination of layers here.
 import numpy as np
 import neuron_models as nm
 import networkx as nx
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import random
 

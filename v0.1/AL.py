@@ -12,7 +12,7 @@ import experiments as ex
 plt.style.use('ggplot')
 
 #First number is #LNs, second is #PNs
-neuron_nums = [6,18] # 2 LNs and 6PNs
+neuron_nums = [2, 6] # 2 LNs and 6PNs
 #Create_AL creates AL with random connections with prob 0.5
 AL = net.create_AL(nm.LN, nm.PN, nm.Synapse_gaba_LN, nm.Synapse_nAch_PN, neuron_nums)
 
