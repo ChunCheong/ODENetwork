@@ -12,7 +12,7 @@ import lab_manager
 neuron_nums = [2,1] # number of neurons in each layer
 net = networks.get_multilayer_fc(
     nm.HHNeuronWithCa, nm.PlasticNMDASynapseWithCa, neuron_nums)
-networks.draw_layered_digraph(net)
+#networks.draw_layered_digraph(net)
 
 # step 2: design an experiment. (Fixing input currents really)
 #experiments.delay_pulses_on_layer_0_and_1(net)
