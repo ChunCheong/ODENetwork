@@ -3,12 +3,24 @@ networks.py
 A module that contains all the networks architecture classes.
 Define layers or combination of layers here.
 """
+# begin boiler plate for compatibility
+from __future__ import absolute_import, division, print_function
+from __future__ import unicode_literals
+import sys
+if sys.version_info.major > 2:
+    import lab_manager as lm
+    xrange = range
+elif sys.version_info.major == 2:
+    pass
+# end boiler plate for compatibility
+
 import numpy as np
 import neuron_models as nm
 import networkx as nx
-import matplotlib
-matplotlib.use("TkAgg")
-import matplotlib.pyplot as plt
+# Jason might want to come back here later
+# import matplotlib
+# matplotlib.use("TkAgg")
+# import matplotlib.pyplot as plt
 import random
 
 """ The most basic class"""
@@ -86,7 +98,7 @@ def connect_layer(layer, connections, prob, g):
         for j in layer:
             if n != j and random.random() < prob:
                 layer.add_edge(n, j, synapse = connections(g))
-                
+
 def interconnect(layer1, layer2, synapse1, synapse2, prob1, prob2, g1, g2):
     net3 = nx.compose(layer1, layer2)
     neurons1, neurons2 = layer1.layers[-1].nodes(), layer2.layers[0].nodes()
@@ -106,10 +118,10 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     gLNPN = 800.0
     gPN = 350.0
     gPNLN = 300.0
-    
+
     #connect LNs together
     connect_layer(LNs, LNSynapse, 1.0, gLN)
-    
+
     p = PNs.nodes()
     #connect PNs together
     PNs.add_edge(p[0], p[1], synapse = PNSynapse(gPN))
@@ -122,34 +134,34 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     PNs.add_edge(p[4], p[5], synapse = PNSynapse(gPN))
     PNs.add_edge(p[5], p[3], synapse = PNSynapse(gPN))
     PNs.add_edge(p[5], p[2], synapse = PNSynapse(gPN))
-    
+
     #connect LNs and PNs together
     AL = nx.compose(LNs, PNs)
     nLN, nPN = LNs.nodes(), PNs.nodes()
-    
+
     AL.add_edge(nLN[0], nPN[0], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[0], nPN[1], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[0], nPN[2], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[1], nPN[3], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[1], nPN[4], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[1], nPN[5], synapse = LNSynapse(gLNPN))
-    
+
     AL.add_edge(nPN[1], nLN[0], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[3], nLN[0], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[1], nLN[1], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[3], nLN[1], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
-    
+
     AL.layers = LNs.layers + PNs.layers
     AL.labels = LNs.labels + PNs.labels
-    
+
     return AL
-    
+
 #Creates AL from the 2001 Bazhenov paper
-def create_AL_man(LNClass, PNClass, LNSynapse, PNSynapse): 
+def create_AL_man(LNClass, PNClass, LNSynapse, PNSynapse):
     LNs = get_single_layer(LNClass, 2)
     PNs = get_single_layer(PNClass, 6)
-    
+
     AL = manual_connect(LNs, PNs, LNSynapse, PNSynapse)
     return AL
 
@@ -158,7 +170,7 @@ def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums):
     num_layer = len(neuron_nums)
     LNs = get_single_layer(LNClass, neuron_nums[0])
     PNs = get_single_layer(PNClass, neuron_nums[1])
-    
+
     gLN = 400.0
     gLNPN = 800.0
     gPN = 350.0
@@ -167,11 +179,10 @@ def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums):
     connect_prob_PN = 0.5
     connect_layer(LNs, LNSynapse, connect_prob_LN, gLN)
     connect_layer(PNs, PNSynapse, connect_prob_PN, gPN)
-    
+
     inter_connect_prob_LN = 0.5
     inter_connect_prob_PN = 0.5
-    AL = interconnect(LNs, PNs, LNSynapse, PNSynapse, 
+    AL = interconnect(LNs, PNs, LNSynapse, PNSynapse,
                       inter_connect_prob_LN, inter_connect_prob_PN,
                       gLNPN, gPNLN)
     return AL
-
