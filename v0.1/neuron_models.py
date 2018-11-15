@@ -10,7 +10,7 @@ from jitcode import jitcode, y, t
 import numpy as np
 #import sym_backend
 try:
-    import sym_backend as sym_backend
+    import symengine as sym_backend
 except:
     import sympy as sym_backend
 # "Global" constants, if any
