@@ -104,21 +104,12 @@ def get_poisson_spike_train(rates, t0=0., time_total=100., i_max=50., w=1.):
 Adds constant current to specified neurons
 """
 def const_current(net, num_layers, neuron_inds, current_vals):
-<<<<<<< HEAD
-    for l,layer in enumerate(net.layers):
-        for i,neuron in enumerate(layer.nodes()):
-            try current_vals[l].index(i):
-                neuron.i_inj = lambda t: current_vals[l][i]
-        #for i in range(len(neuron_inds[l])):
-        #    list(layer)[neuron_inds[l][i]].i_inj = lambda t: current_vals[l][i]
-=======
     for l in xrange(num_layers):
         layer = net.layers[l].nodes()
         layer_list = list(layer)
         for i in xrange(len(neuron_inds[l])):
             layer_list[neuron_inds[l][i]].i_inj = lambda t: current_vals[l][i]
 
->>>>>>> master
 def feed_gaussian_rate_poisson_spikes(
     net, base_rate, i_max=50., num_sniffs=10, time_per_sniff=100.):
     #i_max = 50. #5. # (some unit)
