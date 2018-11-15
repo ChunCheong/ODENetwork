@@ -36,7 +36,7 @@ experiments.feed_gaussian_rate_poisson_spikes(
     time_per_sniff=time_per_sniff)
 
 # step 3: ask our lab manager to set up the lab for the experiment.
-f, initial_conditions = lab_manager.set_up_lab(net)
+f, initial_conditions, _ = lab_manager.set_up_lab(net)
 
 # step 4: run the lab and gather data
 time_sampled_range = np.arange(0., total_time, 0.1)

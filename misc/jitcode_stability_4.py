@@ -3,7 +3,8 @@ import symengine
 import numpy as np
 import matplotlib.pyplot as plt
 
-def heaviside(x,K=1.e4): # K= some_big_number
+# observe what happens as you crank up K=1.e0 to K=1.e3
+def heaviside(x,K=1.e0): # K= some_big_number
     return 1./(1.+ symengine.exp(-K*x))
 
 def unit_pulse(t,t0,w):
