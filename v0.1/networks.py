@@ -7,6 +7,7 @@ Define layers or combination of layers here.
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 import sys
+from itertools import cycle
 if sys.version_info.major > 2:
     xrange = range
 elif sys.version_info.major == 2:
@@ -71,6 +72,7 @@ def get_multilayer_fc(NeuronClass, SynapseClass, neuron_nums):
 Draw layered graph in a structured manner.
 """
 def draw_layered_digraph(net):
+    plt.figure()
     num_layer = len(net.layers)
     xs = np.linspace(0., 1., num=num_layer)
     pos = {}
@@ -83,6 +85,23 @@ def draw_layered_digraph(net):
             pos[neuron] = [xs[l], ys[n]]
     plt.figure()
     nx.draw_networkx(net, pos=pos, with_labels=False)
+
+def draw_colored_layered_digraph(net):
+    #cycle not working
+    cycol = cycle('rbgkc')
+    num_layer = len(net.layers)
+    xs = np.linspace(0., 1., num=num_layer)
+    pos = {}
+    for (l, layer) in enumerate(net.layers):
+        if len(layer.nodes) == 1:
+            ys = [0.5]
+        else:
+            ys = np.linspace(0., 1., num=len(layer.nodes))
+        for (n, neuron) in enumerate(layer.nodes):
+            pos[neuron] = [xs[l], ys[n]]
+        print('called')
+        nx.draw_networkx_nodes(list(layer.nodes),pos=pos,node_color=next(cycol))
+    nx.draw_networkx_edges(net,pos=pos)
 
 
 """
