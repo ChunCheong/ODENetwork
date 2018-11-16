@@ -8,10 +8,9 @@ elif sys.version_info.major == 2:
     pass
 # end boiler plate for compatibility
 
-import lab_manager_py27 as lm # have to combine two lab_manager later
+import lab_manager as lm # have to combine two lab_manager later
 
 import scipy as sp
-import pylab as plt
 import numpy as np
 from jitcode import jitcode, y, t
 try:
@@ -23,12 +22,6 @@ import random
 import networks as net
 import neuron_models as nm
 import experiments as ex
-
-# import importlib # only for python 3.4+
-# importlib.reload(lm)
-#importlib.reload(ex)
-
-plt.style.use('ggplot')
 
 #First number is #LNs, second is #PNs
 neuron_nums = [2, 6] # 2 LNs and 6PNs
@@ -51,5 +44,5 @@ time_sampled_range = np.arange(0., time_len, dt)
 
 data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5')
 
-# lm.show_all_neuron_in_layer(time_sampled_range, data, AL, 0)
-# lm.plot_LFP(time_sampled_range, data, AL, layer_pn = 1)
+lm.show_all_neuron_in_layer(time_sampled_range, data, AL, 0)
+lm.plot_LFP(time_sampled_range, data, AL, layer_pn = 1)

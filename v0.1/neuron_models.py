@@ -413,7 +413,7 @@ class HHNeuron:
         # Examples of varibales include Vm, gating variables, calcium ...etc
         # Constants can be variouse conductances, which can vary across
         # instances.
-        self.i_inj = lambda t: 0 # injected currents
+        self.i_inj = 0 # injected currents
         self.V = None
         self.m = None
         self.h = None
@@ -473,7 +473,7 @@ class HHNeuron:
 
     def dV_dt(self, V, m, h, n, t, i_syn):
         return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
-                            self.I_L(V) - self.i_inj(t) + i_syn)
+                            self.I_L(V) - self.i_inj + i_syn)
 
     def dm_dt(self, V, m): return (self.m0(V) - m)/self.tau_m(V)
     def dh_dt(self, V, h): return (self.h0(V) - h)/self.tau_h(V)
@@ -581,7 +581,7 @@ class PN:
         # Examples of varibales include Vm, gating variables, calcium ...etc
         # Constants can be variouse conductances, which can vary across
         # instances.
-        self.i_inj = lambda t: 0 # injected currents
+        self.i_inj = 0 # injected currents
         self.V = None
         self.m = None
         self.h = None
@@ -638,7 +638,7 @@ class PN:
     def dV_dt(self, V, m, h, n, z, u, t, i_syn):
         return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
                         self.I_L(V) + self.I_A(V,z,u) + self.I_KL(V)
-                         - self.i_inj(t) + i_syn)
+                         - self.i_inj + i_syn)
     def dm_dt(self, V, m): return self.a_m(V)*(1-m)-self.b_m(V)*m
     def dh_dt(self, V, h): return self.a_h(V)*(1-h)-self.b_h(V)*h
     def dn_dt(self, V, n): return self.a_n(V)*(1-n)-self.b_n(V)*n
@@ -693,7 +693,7 @@ class LN:
     DIM = 6
 
     def __init__(self, para = None):
-        self.i_inj = lambda t: 0 # injected currents
+        self.i_inj = 0 # injected currents
         self.V = None
         self.n = None
         self.q = None
@@ -768,7 +768,7 @@ class LN:
 
     def dV_dt(self, V, n, q, s, v, t, Ca, i_syn):
         return -1/self.C_m *(self.I_K_LN(V, n) + self.I_L_LN(V) + self.I_KCa(V, q) + \
-                        self.I_Ca(V, s, v) + self.I_KL_LN(V) - self.i_inj(t) + i_syn)
+                        self.I_Ca(V, s, v) + self.I_KL_LN(V) - self.i_inj + i_syn)
     def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.2)/150.0
     def ds_dt(self, V, s): return (self.s0(V)-s)/self.ts(V)
     def dv_dt(self, V, v): return (self.v0(V)-v)/self.tv(V)

@@ -107,7 +107,7 @@ def const_current(net, num_layers, neuron_inds, current_vals):
         layer = net.layers[l].nodes()
         layer_list = list(layer)
         for i in xrange(len(neuron_inds[l])):
-            layer_list[neuron_inds[l][i]].i_inj = lambda t: current_vals[l][i]
+            layer_list[neuron_inds[l][i]].i_inj = current_vals[l][i]
 
 def feed_gaussian_rate_poisson_spikes(
     net, base_rate, i_max=50., num_sniffs=10, time_per_sniff=100.):
