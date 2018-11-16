@@ -5,17 +5,15 @@ from __future__ import unicode_literals
 import sys
 if sys.version_info.major > 2:
     xrange = range
-    import lab_manager as lm
-
 elif sys.version_info.major == 2:
-    import lab_manager_py27 as lm
+    pass
 # end boiler plate for compatibility
 
 import numpy as np
 import networks
 import neuron_models as nm
 import experiments
-
+import lab_manager
 #from importlib import reload  # Python 3.4+ only.
 # reload(networks)
 # reload(experiments)
@@ -38,16 +36,16 @@ experiments.feed_gaussian_rate_poisson_spikes(
     time_per_sniff=time_per_sniff)
 
 # step 3: ask our lab manager to set up the lab for the experiment.
-f, initial_conditions, _ = lm.set_up_lab(net)
+f, initial_conditions, _ = lab_manager.set_up_lab(net)
 
 # step 4: run the lab and gather data
 time_sampled_range = np.arange(0., total_time, 0.1)
-data = lm.run_lab(f, initial_conditions, time_sampled_range)
+data = lab_manager.run_lab(f, initial_conditions, time_sampled_range)
 
 # Time to witness some magic
 #lab_manager.sample_plot(time_sampled_range, data, net)
 for layer_idx in range(len(net.layers)):
-    lm.show_all_neuron_in_layer(
+    lab_manager.show_all_neuron_in_layer(
         time_sampled_range, data, net, layer_idx)
-    lm.show_all_synaspe_onto_layer(
+    lab_manager.show_all_synaspe_onto_layer(
         time_sampled_range, data, net, layer_idx)
