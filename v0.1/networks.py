@@ -72,7 +72,6 @@ def get_multilayer_fc(NeuronClass, SynapseClass, neuron_nums):
 Draw layered graph in a structured manner.
 """
 def draw_layered_digraph(net):
-    plt.figure()
     num_layer = len(net.layers)
     xs = np.linspace(0., 1., num=num_layer)
     pos = {}
@@ -87,6 +86,7 @@ def draw_layered_digraph(net):
     nx.draw_networkx(net, pos=pos, with_labels=False)
 
 def draw_colored_layered_digraph(net):
+    plt.figure()
     #cycle not working
     cycol = cycle('rbgkc')
     num_layer = len(net.layers)
