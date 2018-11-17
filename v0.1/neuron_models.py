@@ -413,7 +413,7 @@ class HHNeuron:
         # Examples of varibales include Vm, gating variables, calcium ...etc
         # Constants can be variouse conductances, which can vary across
         # instances.
-        self.i_inj = 0 # injected currents
+        self.i_inj = 0.0 # injected currents
         self.V = None
         self.m = None
         self.h = None
@@ -436,13 +436,15 @@ class HHNeuron:
         mm = self.m
         hh = self.h
         nn = self.n
-
-
+        i_inj = self.i_inj
         i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
 
-        yield self.dV_dt(VV, mm, hh, nn, t, i_syn)
+        i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
+                            self.I_L(VV) + i_syn)
+
+        yield -1/self.C_m*(i_inj+i_base)
         yield self.dm_dt(VV, mm)
         yield self.dh_dt(VV, hh)
         yield self.dn_dt(VV, nn)
@@ -553,9 +555,9 @@ class Synapse_gaba_HH:
     def get_initial_condition(self):
         return [0.1]
 
-"Models of Projection Neurons from the Bazhenov Papers\
+"Fitted Model of Projection Neurons from the Bazhenov Papers\
 Defined in pico amps"
-class PN:
+class PN_2:
     # Constants for PNs
     C_m  =   142.0 # membrane capacitance, in pF
 
@@ -572,6 +574,23 @@ class PN:
     E_L_PN  = -55.0
     E_KL_PN = -95.0
 
+
+    # Gating Variable m parameters
+    HF_PO_M = -43.9
+    V_REW_M = -7.4
+    HF_PO_MT = -47.5
+    V_REW_MT = 40.0
+    TAU_0_M = 0.024
+    TAU_1_M = 0.093
+
+    # Gating Variable h Parameters
+    HF_PO_H = -48.3
+    V_REW_H = 4.0
+    HF_PO_HT = -56.8
+    V_REW_HT = 16.9
+    TAU_0_H = 0.0
+    TAU_1_H = 5.6
+
     shift = 70.0
 
     DIM = 6
@@ -581,7 +600,7 @@ class PN:
         # Examples of varibales include Vm, gating variables, calcium ...etc
         # Constants can be variouse conductances, which can vary across
         # instances.
-        self.i_inj = 0 # injected currents
+        self.i_inj = 0.0 # injected currents
         self.V = None
         self.m = None
         self.h = None
@@ -609,14 +628,134 @@ class PN:
         nn = self.n
         zz = self.z
         uu = self.u
+        i_inj = self.i_inj
 
 
 
         i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
+        i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
+                        self.I_L(VV) + self.I_A(VV,zz,uu) + self.I_KL(VV)
+                        + i_syn)
 
-        yield self.dV_dt(VV, mm, hh, nn, zz, uu, t, i_syn)
+        yield -1/self.C_m*(i_base-i_inj)
+        yield self.dm_dt(VV, mm)
+        yield self.dh_dt(VV, hh)
+        yield self.dn_dt(VV, nn)
+        yield self.dz_dt(VV, zz)
+        yield self.du_dt(VV, uu)
+
+
+    def get_initial_condition(self):
+        return [-65.0, 0.05, 0.6, 0.32, 0.6, 0.6]
+
+    def get_ind(self):
+        return self.ii
+
+    def get_volt(self):
+        return self.V
+
+    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
+
+    def x_eqm(self,V,theta,sigma): return 0.5*(1.0 - sym_backend.tanh(0.5*(V-theta)/sigma))
+    def tau_x(self,V,theta,sigma,t0,t1): return t0 + t1*(1.0-sym_backend.tanh((V-theta)/sigma)**2)
+
+    def dm_dt(self,V,m): return (self.m0(V)-m)/self.tm(V)
+    def dh_dt(self,V,h): return (self.h0(V)-h)/self.th(V)
+    def dn_dt(self, V, n): return self.a_n(V)*(1-n)-self.b_n(V)*n
+    def dz_dt(self, V, z): return (self.z0(V)-z)/self.tz(V)
+    def du_dt(self, V, u): return (self.u0(V)-u)/self.tu(V)
+
+    def m0(self,V): return self.x_eqm(V,self.HF_PO_M,self.V_REW_M)
+    def tm(self,V): return self.tau_x(V,self.HF_PO_MT,self.V_REW_MT,self.TAU_0_M,self.TAU_1_M)
+
+    def h0(self,V): return self.x_eqm(V,self.HF_PO_H,self.V_REW_H)
+    def th(self,V): return self.tau_x(V,self.HF_PO_HT,self.V_REW_HT,self.TAU_0_H,self.TAU_1_H)
+
+    def a_n(self, V): return 0.016*(V-35.1+self.shift)/(1-sym_backend.exp(-(V-35.1+self.shift)/5.0))
+    def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
+
+    def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
+    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+
+    def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
+
+    #adapted from bazhenov
+    def tu(self, V):
+        return 0.27/(sym_backend.exp((V+46)/5.0)+sym_backend.exp(-(V+238)/37.5)) \
+                    +5.1/2*(1+sym_backend.tanh((V+57)/3))
+
+    def I_Na(self, V, m, h): return self.g_Na_PN*m**3*h*(V - self.E_Na_PN) #nS*mV = pA
+    def I_K(self, V, n): return self.g_K_PN*n*(V - self.E_K_PN)
+    def I_L(self, V): return self.g_L_PN*(V - self.E_L_PN)
+    def I_A(self, V, z, u): return self.g_A_PN*z**4*u*(V - self.E_K_PN)
+    def I_KL(self, V): return self.g_KL_PN*(V - self.E_KL_PN)
+
+
+class PN:
+        # Constants for PNs
+    C_m  =   142.0 # membrane capacitance, in pF
+
+    # maximum conducances, in nS
+    g_Na_PN =   7150.0
+    g_K_PN  =   1430.0
+    g_L_PN  =   21.0
+    g_KL_PN =   5.72
+    g_A_PN  =   1430.0
+
+    # Nernst reversal potentials, in mV
+    E_Na_PN = 50.0
+    E_K_PN  = -95.0
+    E_L_PN  = -55.0
+    E_KL_PN = -95.0
+
+    shift = 70.0
+    DIM = 6
+
+    def __init__(self, para = None):
+        # Put all the internal variables and instance specific constants here
+        # Examples of varibales include Vm, gating variables, calcium ...etc
+        # Constants can be variouse conductances, which can vary across
+        # instances.
+        self.i_inj = 0.0 # injected currents
+        self.V = None
+        self.m = None
+        self.h = None
+        self.n = None
+        self.z = None
+        self.u = None
+
+    def set_integration_index(self, i):
+        self.ii = i
+        self.V = y(i)
+        self.m = y(i+1)
+        self.h = y(i+2)
+        self.n = y(i+3)
+        self.z = y(i+4)
+        self.u = y(i+5)
+
+    def set_neuron_index(self, ni):
+        self.ni = ni
+
+    def dydt(self, pre_synapses, pre_neurons): # a list of pre-synaptic neurons
+    # define how neurons are coupled here
+        VV = self.V
+        mm = self.m
+        hh = self.h
+        nn = self.n
+        zz = self.z
+        uu = self.u
+        i_inj = self.i_inj
+
+        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
+                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
+                    for (i,synapse) in enumerate(pre_synapses))
+        i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
+                    self.I_L(VV) + self.I_A(VV,zz,uu) + self.I_KL(VV)
+                    + i_syn)
+
+        yield -1/self.C_m*(i_base-i_inj)
         yield self.dm_dt(VV, mm)
         yield self.dh_dt(VV, hh)
         yield self.dn_dt(VV, nn)
@@ -721,12 +860,17 @@ class LN:
         ss = self.s
         vv = self.v
         Ca = self.Ca
+        i_inj = self.i_inj
 
         i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
 
-        yield self.dV_dt(VV, nn, qq, ss, vv, t, Ca, i_syn)
+        i_base = (self.I_K_LN(VV, nn) + self.I_L_LN(VV) + self.I_KCa(VV, qq) + \
+                        self.I_Ca(VV, ss, vv) + self.I_KL_LN(VV) + i_syn)
+
+
+        yield -1/self.C_m*(i_base - i_inj)
         yield self.dnl_dt(VV, nn)
         yield self.ds_dt(VV, ss)
         yield self.dv_dt(VV, vv)
@@ -814,8 +958,50 @@ class Synapse_gaba_LN:
     def get_initial_condition(self):
         return [0.1]
 
-class Synapse_nAch_PN:
+
+"""
+Different Version of an nAch Synapse
+"""
+class Synapse_nAch_PN_2:
     #inhibition
+    E_nAch = 0.0
+    r1 = 1.5
+    tau = 1.0
+    Kp = 1.5
+    Vp = -20.0
+
+    DIM = 1
+    def __init__(self, gnAch = 300.0):
+        self.r = None
+        self.weight = 1.0
+        self.gnAch = gnAch
+
+
+    def set_integration_index(self, i):
+        self.ii = i
+        self.r = y(i)
+
+    def get_ind(self):
+        return self.ii
+
+    def fix_weight(self, w):
+        self.weight = w
+
+    def dydt(self, pre_neuron, pos_neuron):
+        Vpre = pre_neuron.V
+        r = self.r
+        yield (self.r_inf(Vpre) - r)/(self.tau*(self.r1-self.r_inf(Vpre)))
+
+    def r_inf(self,V): return 0.5*(1.0-sym_backend.tanh(-0.5*(V - self.Vp)/self.Kp))
+
+    def get_params(self):
+        return [self.gnAch, self.E_nAch]
+
+    def get_initial_condition(self):
+        return [0.0]
+
+class Synapse_nAch_PN:
+    #Excitation
     E_nAch = 0.0
     alphaR = 10.0
     betaR = 0.2
@@ -850,4 +1036,4 @@ class Synapse_nAch_PN:
         return [self.gnAch, self.E_nAch]
 
     def get_initial_condition(self):
-        return [0.1]
+        return [0.0]

@@ -21,6 +21,7 @@ import numpy as np
 import math
 
 
+
 """
 a simple experiment playing with calcium-based STDP in a 2-layer FC network
 """
@@ -78,6 +79,9 @@ def poisson_train(rates, time_total=100.):
         trains.append(train)
     return trains
 
+"""
+Helper fuction to feed_gaussian_rate_poisson_spikes()
+"""
 def get_poisson_spike_train(rates, t0=0., time_total=100., i_max=50., w=1.):
     #w = 1. #pules width ms
     i_injs = []
@@ -123,7 +127,7 @@ def feed_gaussian_rate_poisson_spikes(
     for i in range(num_sniffs):
         c = classes[i]
         rates = base_rate*draw_from_gaussian_clusters(c)[0]
-        i_injs, _ = get_poisson_spike_train(rates, t0=t0, time_total=time_per_sniff)
+        i_injs, _ = get_poisson_spike_train(rates, t0=t0, time_total=time_per_sniff,i_max=i_max)
         t0 += time_per_sniff
         if len(i_injs) != len(net.layers[0].nodes()):
             print("Input dimension does not match!")
