@@ -17,10 +17,10 @@ elif sys.version_info.major == 2:
 import numpy as np
 import neuron_models as nm
 import networkx as nx
-# Jason might want to come back here later
-# import matplotlib
-# matplotlib.use("TkAgg")
-# import matplotlib.pyplot as plt
+# For mac users
+import matplotlib
+matplotlib.use("TkAgg")
+import matplotlib.pyplot as plt
 import random
 
 """ The most basic class"""

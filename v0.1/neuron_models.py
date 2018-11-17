@@ -437,7 +437,6 @@ class HHNeuron:
         hh = self.h
         nn = self.n
         i_inj = self.i_inj
-        print(type(i_inj))
         i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
                     for (i,synapse) in enumerate(pre_synapses))
@@ -474,9 +473,9 @@ class HHNeuron:
     def I_K(self, V, n): return self.g_K*n**4*(V - self.E_K)
     def I_L(self, V): return self.g_L*(V - self.E_L)
 
-
-
-
+    def dV_dt(self, V, m, h, n, t, i_syn):
+        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
+                            self.I_L(V) - self.i_inj + i_syn)
 
     def dm_dt(self, V, m): return (self.m0(V) - m)/self.tau_m(V)
     def dh_dt(self, V, h): return (self.h0(V) - h)/self.tau_h(V)
@@ -775,6 +774,10 @@ class PN:
 
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
 
+    def dV_dt(self, V, m, h, n, z, u, t, i_syn):
+        return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
+                        self.I_L(V) + self.I_A(V,z,u) + self.I_KL(V)
+                         - self.i_inj + i_syn)
     def dm_dt(self, V, m): return self.a_m(V)*(1-m)-self.b_m(V)*m
     def dh_dt(self, V, h): return self.a_h(V)*(1-h)-self.b_h(V)*h
     def dn_dt(self, V, n): return self.a_n(V)*(1-n)-self.b_n(V)*n
@@ -907,6 +910,9 @@ class LN:
     def I_L_LN(self, V): return self.g_L_LN*(V - self.E_L_LN)
 
 
+    def dV_dt(self, V, n, q, s, v, t, Ca, i_syn):
+        return -1/self.C_m *(self.I_K_LN(V, n) + self.I_L_LN(V) + self.I_KCa(V, q) + \
+                        self.I_Ca(V, s, v) + self.I_KL_LN(V) - self.i_inj + i_syn)
     def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.2)/150.0
     def ds_dt(self, V, s): return (self.s0(V)-s)/self.ts(V)
     def dv_dt(self, V, v): return (self.v0(V)-v)/self.tv(V)
