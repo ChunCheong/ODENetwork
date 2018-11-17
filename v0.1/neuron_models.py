@@ -557,7 +557,7 @@ class Synapse_gaba_HH:
 
 "Fitted Model of Projection Neurons from the Bazhenov Papers\
 Defined in pico amps"
-class PN2:
+class PN_2:
     # Constants for PNs
     C_m  =   142.0 # membrane capacitance, in pF
 
@@ -962,7 +962,7 @@ class Synapse_gaba_LN:
 """
 Different Version of an nAch Synapse
 """
-class Synapse_nAch_PN2:
+class Synapse_nAch_PN_2:
     #inhibition
     E_nAch = 0.0
     r1 = 1.5
