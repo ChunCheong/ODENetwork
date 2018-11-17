@@ -140,7 +140,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     #connect LNs together
     connect_layer(LNs, LNSynapse, 1.0, gLN)
 
-    p = PNs.nodes()
+    p = list(PNs.nodes())
     #connect PNs together
     PNs.add_edge(p[0], p[1], synapse = PNSynapse(gPN))
     PNs.add_edge(p[0], p[3], synapse = PNSynapse(gPN))
@@ -155,7 +155,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
 
     #connect LNs and PNs together
     AL = nx.compose(LNs, PNs)
-    nLN, nPN = LNs.nodes(), PNs.nodes()
+    nLN, nPN = list(LNs.nodes()), list(PNs.nodes())
 
     AL.add_edge(nLN[0], nPN[0], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[0], nPN[1], synapse = LNSynapse(gLNPN))
@@ -168,7 +168,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     AL.add_edge(nPN[3], nLN[0], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[1], nLN[1], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[3], nLN[1], synapse = PNSynapse(gPNLN))
-    AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
+    #AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
 
     AL.layers = LNs.layers + PNs.layers
     AL.labels = LNs.labels + PNs.labels
