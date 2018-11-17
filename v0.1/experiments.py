@@ -19,7 +19,7 @@ import electrodes
 from jitcode import t # symbolic time varibale, useful for defining currents
 import numpy as np
 import math
-import networkx as nx
+
 
 
 """
