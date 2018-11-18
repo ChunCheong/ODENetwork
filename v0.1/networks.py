@@ -7,6 +7,7 @@ Define layers or combination of layers here.
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 import sys
+from itertools import cycle
 if sys.version_info.major > 2:
     xrange = range
 elif sys.version_info.major == 2:
@@ -16,9 +17,9 @@ elif sys.version_info.major == 2:
 import numpy as np
 import neuron_models as nm
 import networkx as nx
-# Jason might want to come back here later
-# import matplotlib
-# matplotlib.use("TkAgg")
+# For mac users
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import random
 
@@ -84,6 +85,24 @@ def draw_layered_digraph(net):
     plt.figure()
     nx.draw_networkx(net, pos=pos, with_labels=False)
 
+def draw_colored_layered_digraph(net):
+    plt.figure()
+    #cycle not working
+    cycol = cycle('rbgkc')
+    num_layer = len(net.layers)
+    xs = np.linspace(0., 1., num=num_layer)
+    pos = {}
+    for (l, layer) in enumerate(net.layers):
+        if len(layer.nodes) == 1:
+            ys = [0.5]
+        else:
+            ys = np.linspace(0., 1., num=len(layer.nodes))
+        for (n, neuron) in enumerate(layer.nodes):
+            pos[neuron] = [xs[l], ys[n]]
+        print('called')
+        nx.draw_networkx_nodes(list(layer.nodes),pos=pos,node_color=next(cycol))
+    nx.draw_networkx_edges(net,pos=pos)
+
 
 """
 Antenna Lobe Functions
@@ -121,7 +140,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     #connect LNs together
     connect_layer(LNs, LNSynapse, 1.0, gLN)
 
-    p = PNs.nodes()
+    p = list(PNs.nodes())
     #connect PNs together
     PNs.add_edge(p[0], p[1], synapse = PNSynapse(gPN))
     PNs.add_edge(p[0], p[3], synapse = PNSynapse(gPN))
@@ -136,7 +155,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
 
     #connect LNs and PNs together
     AL = nx.compose(LNs, PNs)
-    nLN, nPN = LNs.nodes(), PNs.nodes()
+    nLN, nPN = list(LNs.nodes()), list(PNs.nodes())
 
     AL.add_edge(nLN[0], nPN[0], synapse = LNSynapse(gLNPN))
     AL.add_edge(nLN[0], nPN[1], synapse = LNSynapse(gLNPN))
@@ -149,7 +168,7 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     AL.add_edge(nPN[3], nLN[0], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[1], nLN[1], synapse = PNSynapse(gPNLN))
     AL.add_edge(nPN[3], nLN[1], synapse = PNSynapse(gPNLN))
-    AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
+    #AL.add_edge(nPN[4], nLN[1], synapse = PNSynapse(gPNLN))
 
     AL.layers = LNs.layers + PNs.layers
     AL.labels = LNs.labels + PNs.labels

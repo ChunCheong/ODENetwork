@@ -4,10 +4,7 @@ import networks
 import neuron_models as nm
 import experiments
 import lab_manager
-#from importlib import reload  # Python 3.4+ only.
-# reload(networks)
-# reload(experiments)
-#reload(lab_manager)
+
 # Step 1: Pick a network and visualize it
 neuron_nums = [2,1] # number of neurons in each layer
 net = networks.get_multilayer_fc(

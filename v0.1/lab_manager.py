@@ -22,8 +22,8 @@ import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
 # For Mac user
-# import matplotlib
-# matplotlib.use("macosx")
+import matplotlib
+matplotlib.use("TKagg")
 import matplotlib.pyplot as plt
 
 """
@@ -257,3 +257,17 @@ def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
             axes[2].legend()
             plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
             plt.show()
+"""
+Plot the local field potential for AL.py
+"""
+def plot_LFP(time_sampled_range, data, net, layer_pn = 1):
+    t = time_sampled_range
+    fig = plt.figure(figsize = (8,5))
+    plt.title('Local Field Potential')
+    plt.ylabel('LFP (mV)')
+    plt.xlabel('time (ms)')
+    inds = np.array([n.ii for n in net.layers[layer_pn].nodes()])
+    sol = np.transpose(data)
+    plt.plot(t, np.mean(sol[inds], axis = 0))
+    plt.show()
+    #fig.savefig('LFP62.pdf', bbox_inches='tight')
