@@ -485,7 +485,7 @@ class HHNeuronWithCaJL:
     COND_NA = 120 # Max. Na conductance, unit: mScm^-2
     COND_K = 36 # Max. K conductance, unit: mScm^-2
     COND_CA = 1. # Max. Ca conductance, unit: mScm^-2
-    COND_SYN = 1. # have to be fiine tuned according to each network
+    COND_SYN = .5 # have to be fiine tuned according to each network
     #COND_CA_SYN = 1.5
     # Nernst/reversal potentials
     RE_PO_LEAK = -70 # Leak Nernst potential, unit: mV
