@@ -19,7 +19,7 @@ import networkx as nx
 # Jason might want to come back here later
 # import matplotlib
 # matplotlib.use("TkAgg")
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import random
 
 """ The most basic class"""
