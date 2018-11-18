@@ -1,14 +1,4 @@
 # main.py
-# begin boiler plate for compatibility
-from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
-import sys
-if sys.version_info.major > 2:
-    xrange = range
-elif sys.version_info.major == 2:
-    pass
-# end boiler plate for compatibility
-
 import numpy as np
 import networks
 import neuron_models as nm
@@ -22,7 +12,7 @@ import lab_manager
 neuron_nums = [2,1] # number of neurons in each layer
 net = networks.get_multilayer_fc(
     nm.HHNeuronWithCa, nm.PlasticNMDASynapseWithCa, neuron_nums)
-#networks.draw_layered_digraph(net)
+networks.draw_layered_digraph(net)
 
 # step 2: design an experiment. (Fixing input currents really)
 #experiments.delay_pulses_on_layer_0_and_1(net)
@@ -36,7 +26,7 @@ experiments.feed_gaussian_rate_poisson_spikes(
     time_per_sniff=time_per_sniff)
 
 # step 3: ask our lab manager to set up the lab for the experiment.
-f, initial_conditions, _ = lab_manager.set_up_lab(net)
+f, initial_conditions = lab_manager.set_up_lab(net)
 
 # step 4: run the lab and gather data
 time_sampled_range = np.arange(0., total_time, 0.1)
