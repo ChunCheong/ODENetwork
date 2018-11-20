@@ -959,14 +959,53 @@ class Synapse_gaba_LN:
         return [0.1]
 
 
+class Synapse_gaba_LN_with_slow:
+    #inhibition
+    E_gaba = -70.0
+    alphaR = 10.0
+    betaR = 0.16
+    Tm = 1.0
+
+
+    Kp = 1.5
+    Vp = -20.0
+
+    DIM = 1
+    def __init__(self, gGABA = 800.0):
+        self.r = None
+        self.weight = 1.0
+        self.gGABA = gGABA
+
+    def set_integration_index(self, i):
+        self.ii = i
+        self.r = y(i)
+
+    def get_ind(self):
+        return self.ii
+
+    def fix_weight(self, w):
+        self.weight = w
+
+    def dydt(self, pre_neuron, pos_neuron):
+        Vpre = pre_neuron.V
+        r = self.r
+        yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
+
+    def get_params(self):
+        return [self.gGABA, self.E_gaba]
+
+    def get_initial_condition(self):
+        return [0.1]
+
+
 """
 Different Version of an nAch Synapse
 """
 class Synapse_nAch_PN_2:
     #inhibition
     E_nAch = 0.0
-    r1 = 1.5
-    tau = 1.0
+    r1 = 1.5 #1.5
+    tau = 1 #1
     Kp = 1.5
     Vp = -20.0
 
@@ -992,7 +1031,7 @@ class Synapse_nAch_PN_2:
         r = self.r
         yield (self.r_inf(Vpre) - r)/(self.tau*(self.r1-self.r_inf(Vpre)))
 
-    def r_inf(self,V): return 0.5*(1.0-sym_backend.tanh(-0.5*(V - self.Vp)/self.Kp))
+    def r_inf(self,V): return 0.25*(1.0-sym_backend.tanh(-0.5*(V - self.Vp)/self.Kp))
 
     def get_params(self):
         return [self.gnAch, self.E_nAch]
