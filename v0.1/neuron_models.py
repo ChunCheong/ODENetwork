@@ -783,10 +783,6 @@ class PN:
     def get_volt(self):
         return self.V
 
-#### Note to self, potentially rewrite the way synapses work. Perhaps write
-#### synapse function in which the post synaptic potential is the only input
-#### and called in the post synaptic cell. How does this affect integration?
-
     def I_syn_modified(self,V,prefix,E_rev):
         return prefix*(V-E_rev)
 
