@@ -1071,7 +1071,7 @@ class Synapse_nAch_PN_2:
         r = self.r
         yield (self.r_inf(Vpre) - r)/(self.tau*(self.r1-self.r_inf(Vpre)))
 
-    def r_inf(self,V): return 0.25*(1.0-sym_backend.tanh(-0.5*(V - self.Vp)/self.Kp))
+    def r_inf(self,V): return 0.5*(1.0-sym_backend.tanh(-0.5*(V - self.Vp)/self.Kp))
 
     def get_params(self):
         return [self.gnAch, self.E_nAch]
