@@ -28,7 +28,7 @@ from itertools import chain
 neuron_nums = [2, 6]
 #Create_AL creates AL with random connections with prob 0.5
 #AL = net.create_AL(nm.LN, nm.PN, nm.Synapse_gaba_LN, nm.Synapse_nAch_PN_2, neuron_nums)
-AL = net.create_AL_man(nm.LN, nm.PN_2, nm.Synapse_gaba_LN_with_slow, nm.Synapse_nAch_PN_2)
+AL = net.create_AL_man(nm.LN, nm.PN_2, nm.Synapse_gaba_LN, nm.Synapse_nAch_PN_2)
 #Set up the experiment
 num_layers = 2
 
@@ -44,9 +44,9 @@ num_layers = 2
 #     I_ext[i][np.nonzero(I_ext[i])] = Iscale*np.asarray(I_ext[i][np.nonzero(I_ext[i])] + 0.02*np.random.randn(np.count_nonzero(I_ext[i]),))
 # neuron_inds = [np.nonzero(I_ext[j])[0].tolist() for j in range(num_layers)]
 # current_vals = [I_ext[j][np.nonzero(I_ext[j])] for j in range(num_layers)]
-
+val = 500
 neuron_inds=[[0,1],[1,3]]
-current_vals = [[500,500],[500,500]]
+current_vals = [[val,val],[val,val]]
 
 ex.const_current(AL, num_layers, neuron_inds, current_vals)
 #ex.feed_gaussian_rate_poisson_spikes(AL,0.1,i_max=1000,num_sniffs=50)

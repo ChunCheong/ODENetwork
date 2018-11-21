@@ -630,29 +630,11 @@ class PN_2:
         uu = self.u
         i_inj = self.i_inj
 
-        i_syn=0
-        for (i,synapse) in enumerate(pre_synapses):
-            i_syn += self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-            if synapse.SI:
-                print('neuron %d, synapse %d'%(self.ni,i))
-                i_syn += self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
-                    synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
-        print(i_syn)
-        # i_syn_ij = sum(self.I_syn(VV, y(synapse.get_ind()),
-        #             synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-        #             for (i,synapse) in enumerate(pre_synapses))
-        # i_syn_slow = sum(self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
-        #             synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
-        #             for (i,synapse) in enumerate(pre_synapses))
-
-
-
 
         ## Currently, this doesn't work as it causes a segfault
-        # i_syn_modified = sum([sum([self.I_syn_modified(VV,
-        #     synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
-        #     for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
 
 
         i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
@@ -676,10 +658,8 @@ class PN_2:
     def get_volt(self):
         return self.V
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
-    def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*(V-E_nt)
-    # def I_syn_modified(self,V,prefix,E_rev):
-        # return prefix*(V-E_rev)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
 
     def x_eqm(self,V,theta,sigma): return 0.5*(1.0 - sym_backend.tanh(0.5*(V-theta)/sigma))
     def tau_x(self,V,theta,sigma,t0,t1): return t0 + t1*(1.0-sym_backend.tanh((V-theta)/sigma)**2)
@@ -771,16 +751,13 @@ class PN:
         uu = self.u
         i_inj = self.i_inj
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-                    for (i, synapse) in enumerate(pre_synapses))
-        i_syn_slow = sum(self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
-                    synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
-                    for (i,synapse) in enumerate(pre_synapses))
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
 
         i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
                     self.I_L(VV) + self.I_A(VV,zz,uu) + self.I_KL(VV)
-                    + i_syn + i_syn_slow)
+                    + i_syn)
 
         yield -1/self.C_m*(i_base-i_inj)
         yield self.dm_dt(VV, mm)
@@ -806,6 +783,8 @@ class PN:
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
 
     def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*(V-E_nt)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
 
 
     def dV_dt(self, V, m, h, n, z, u, t, i_syn):
@@ -896,32 +875,9 @@ class LN:
         Ca = self.Ca
         i_inj = self.i_inj
 
-
-        ## Synapse needs to provide this...
-        # i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
-        #             synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-        #             for (i,synapse) in enumerate(pre_synapses))
-        # i_syn_slow = sum(self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
-        #             synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
-        #             for (i,synapse) in enumerate(pre_synapses))
-
-        i_syn=0
-        for (i,synapse) in enumerate(pre_synapses):
-            i_syn += self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-            if synapse.SI:
-                print('neuron %d, synapse %d'%(self.ni,i))
-                i_syn += self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
-                    synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
-        # i_syn_modified = sum([sum([self.I_syn_modified(VV,
-        #     synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
-        #     for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
-        # print(i_syn_modified)
-        # for (i,synapse) in enumerate(pre_synapses):
-        #     print('currents: %d'%synapse.CURRENTS)
-        #     for j in range(synapse.CURRENTS):
-        #         print('%d %d'%(i,j))
-        #         print(synapse.get_prefix_and_rev_po()[j][0])
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
         i_base = (self.I_K_LN(VV, nn) + self.I_L_LN(VV) + self.I_KCa(VV, qq) + \
                         self.I_Ca(VV, ss, vv) + self.I_KL_LN(VV) + i_syn)
 
@@ -942,10 +898,8 @@ class LN:
     def get_volt(self):
         return self.V
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
-    def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*w*(V-E_nt)
-    # def I_syn_modified(self,V,prefix,E_rev):
-        # return prefix*(V-E_rev)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
 
     def a_nl(self, V): return 0.02*(-(35.0+V)/(sym_backend.exp(-(35.0+V)/5.0)-1.0))
     def b_nl(self, V): return 0.5*sym_backend.exp((-(40.0+V)/40.0))
@@ -985,13 +939,13 @@ class Synapse_gaba_LN:
     alphaR = 10.0
     betaR = 0.16
     Tm = 1.0
-    SI = False
 
 
     Kp = 1.5
     Vp = -20.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, gGABA = 800.0):
         self.r = None
         self.weight = 1.0
@@ -1012,6 +966,8 @@ class Synapse_gaba_LN:
         r = self.r
         yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
 
+    def get_prefix_and_rev_po(self):
+        return [[self.gGABA*self.r*self.weight,self.E_gaba]]
     def get_params(self):
         return [self.gGABA, self.E_gaba]
 
@@ -1020,7 +976,6 @@ class Synapse_gaba_LN:
 
 
 class Synapse_gaba_LN_with_slow:
-    SI = True
     #inhibition
     E_gaba = -70.0
     alphaR = 10.0
@@ -1069,6 +1024,7 @@ class Synapse_gaba_LN_with_slow:
         yield self.s3*s - self.s4*G
 
     def T_conc(self,V): return 1.0/(1.0+sym_backend.exp(-(V - self.Vp)/self.Kp))
+    def T_step()
 
     def get_params(self):
         return [self.gGABA, self.E_gaba, self.gSI, self.E_K, self.K]
@@ -1078,7 +1034,7 @@ class Synapse_gaba_LN_with_slow:
         [self.gSI*self.G**4/(self.G**4 + self.K)*self.weight,self.E_K]]
 
     def get_initial_condition(self):
-        return [0.1]
+        return [0.0,0.0,0.0]
 
 
 """
@@ -1132,11 +1088,13 @@ class Synapse_nAch_PN:
     alphaR = 10.0
     betaR = 0.2
     Tm = 0.5
+    SI = False
 
     Kp = 1.5
     Vp = -20.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, gnAch = 300.0):
         self.r = None
         self.weight = 1.0
@@ -1160,6 +1118,9 @@ class Synapse_nAch_PN:
 
     def get_params(self):
         return [self.gnAch, self.E_nAch]
+
+    def get_prefix_and_rev_po(self):
+        return [[self.gnAch*self.r,self.E_nAch]]
 
     def get_initial_condition(self):
         return [0.0]
