@@ -787,9 +787,6 @@ class PN:
 #### synapse function in which the post synaptic potential is the only input
 #### and called in the post synaptic cell. How does this affect integration?
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
-
-    def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*(V-E_nt)
     def I_syn_modified(self,V,prefix,E_rev):
         return prefix*(V-E_rev)
 
