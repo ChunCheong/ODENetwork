@@ -635,8 +635,10 @@ class PN_2:
             i_syn += self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
             if synapse.SI:
+                print('neuron %d, synapse %d'%(self.ni,i))
                 i_syn += self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
                     synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
+        print(i_syn)
         # i_syn_ij = sum(self.I_syn(VV, y(synapse.get_ind()),
         #             synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
         #             for (i,synapse) in enumerate(pre_synapses))
@@ -908,6 +910,7 @@ class LN:
             i_syn += self.I_syn(VV, y(synapse.get_ind()),
                     synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
             if synapse.SI:
+                print('neuron %d, synapse %d'%(self.ni,i))
                 i_syn += self.I_syn_SI(VV, y(synapse.get_ind()+2), synapse.get_params()[2],
                     synapse.get_params()[3],synapse.get_params()[4],synapse.weight)
         # i_syn_modified = sum([sum([self.I_syn_modified(VV,
@@ -940,7 +943,7 @@ class LN:
         return self.V
 
     def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
-    def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*(V-E_nt)
+    def I_syn_SI(self,V,G,gSI, E_nt,K,w): return gSI*G**4/(G**4+K)*w*(V-E_nt)
     # def I_syn_modified(self,V,prefix,E_rev):
         # return prefix*(V-E_rev)
 
