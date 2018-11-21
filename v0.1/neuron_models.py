@@ -495,6 +495,7 @@ class Synapse_glu_HH:
     Vp = 7.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, para = None):
         self.r = None
         self.weight = 1.0
@@ -516,6 +517,8 @@ class Synapse_glu_HH:
         return self.ii
     def get_initial_condition(self):
         return [0.1]
+    def get_prefix_and_rev_po(self):
+        return [[self.Gglu*self.weight*self.r,self.E_cl]]
 
 class Synapse_gaba_HH:
     #inhibition
@@ -530,6 +533,7 @@ class Synapse_gaba_HH:
     Vp = 7.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, para = None):
         self.r = None
         self.weight = 1.0
@@ -551,6 +555,9 @@ class Synapse_gaba_HH:
 
     def get_params(self):
         return [self.gGABA, self.E_gaba]
+
+    def get_prefix_and_rev_po(self):
+        return [[self.gGABA*self.weight*self.r,self.E_gaba]]
 
     def get_initial_condition(self):
         return [0.1]
