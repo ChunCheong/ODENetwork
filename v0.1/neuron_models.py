@@ -1024,7 +1024,6 @@ class Synapse_gaba_LN_with_slow:
         yield self.s3*s - self.s4*G
 
     def T_conc(self,V): return 1.0/(1.0+sym_backend.exp(-(V - self.Vp)/self.Kp))
-    def T_step()
 
     def get_params(self):
         return [self.gGABA, self.E_gaba, self.gSI, self.E_K, self.K]
