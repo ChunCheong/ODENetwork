@@ -44,7 +44,7 @@ num_layers = 2
 #     I_ext[i][np.nonzero(I_ext[i])] = Iscale*np.asarray(I_ext[i][np.nonzero(I_ext[i])] + 0.02*np.random.randn(np.count_nonzero(I_ext[i]),))
 # neuron_inds = [np.nonzero(I_ext[j])[0].tolist() for j in range(num_layers)]
 # current_vals = [I_ext[j][np.nonzero(I_ext[j])] for j in range(num_layers)]
-val = 500
+val = 300
 neuron_inds=[[0,1],[1,3]]
 current_vals = [[val,val],[val,val]]
 
