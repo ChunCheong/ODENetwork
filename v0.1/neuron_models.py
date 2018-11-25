@@ -908,7 +908,8 @@ class LN:
     def tnl(self, V): return 4.65/(self.a_nl(V)+self.b_nl(V))
 
     def s0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+20.0)/6.5))
-    def ts(self, V): return 1+(V+30)*0.014
+    #def ts(self, V): return 1+(V+30)*0.014
+    def ts(self,V): return 1.5
 
     def v0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+25.0)/12.0))
     def tv(self, V): return 0.3*sym_backend.exp((V-40)/13.0)+0.002*sym_backend.exp(-(V-60.0)/29.0)
@@ -986,7 +987,7 @@ class Synapse_gaba_LN_with_slow:
     Kp = 1.5
     Vp = -20.0
 
-    s1 = 1000.0 # uM^{-1}ms^{-1} check units?
+    s1 = 0.001 # uM^{-1}ms^{-1} check units?
     s2 = 0.0025 # ms^{-1}
     s3 = 0.1 # ms^{-1}
     s4 = 0.06 # ms^{-1}
@@ -995,7 +996,7 @@ class Synapse_gaba_LN_with_slow:
 
     DIM = 3
     CURRENTS = 2
-    def __init__(self, gGABA = 800.0, gSI = 800.0):
+    def __init__(self, gGABA = 110.0, gSI = 400.0):
         self.r = None
         self.weight = 1.0
         self.gGABA = gGABA

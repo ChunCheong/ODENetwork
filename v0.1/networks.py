@@ -132,8 +132,8 @@ def interconnect(layer1, layer2, synapse1, synapse2, prob1, prob2, g1, g2):
 
 #specifically for the 6PN, 2LN network in Fig1 Bazhenov 2001
 def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
-    gLN = 400.0
-    gLNPN = 800.0
+    gLN = 110.0
+    gLNPN = 110.0
     gPN = 350.0
     gPNLN = 300.0
 
