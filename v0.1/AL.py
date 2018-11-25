@@ -54,7 +54,7 @@ ex.const_current(AL, num_layers, neuron_inds, current_vals)
 f, initial_conditions, neuron_inds  = lm.set_up_lab(AL)
 
 #run for specified time with dt
-time_len = 5000.0
+time_len = 2000.0
 dt = 0.02
 time_sampled_range = np.arange(0., time_len, dt)
 
@@ -62,5 +62,5 @@ data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri
 
 #lm.show_all_neuron_in_layer(time_sampled_range, data, AL, 0)
 lm.show_random_neuron_in_layer(time_sampled_range,data,AL,0,2)
-lm.show_random_neuron_in_layer(time_sampled_range,data,AL,1,4)
+lm.show_random_neuron_in_layer(time_sampled_range,data,AL,1,1)
 #lm.plot_LFP(time_sampled_range, data, AL, layer_pn = 1)
