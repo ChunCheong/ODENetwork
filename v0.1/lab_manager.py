@@ -283,5 +283,5 @@ def show_random_neuron_in_layer(time_sampled_range, data, net, layer_idx, num_ne
         axes[0].set_ylabel(r"$V_m$ [mV]")
         axes[0].legend()
         axes[-1].set_xlabel("time [ms]")
-        plt.suptitle("Neuron {} in layer {}".format(neuron.ni, layer_idx))
+        plt.suptitle("Random Neuron in layer {}".format(layer_idx))
     plt.show()

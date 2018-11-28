@@ -687,7 +687,7 @@ class PN_2:
     def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
 
     def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
-    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+    def tz(self, V): return 1.0/(sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.37)
 
     def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
 
@@ -807,7 +807,7 @@ class PN:
     def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
 
     def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
-    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+    def tz(self, V): return 1.0/(sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.37)
 
     def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
 
@@ -830,9 +830,9 @@ class LN:
     C_m  =   142.0 # membrane capacitance, in pF
     # maximum conducances, in nS
     g_K_LN  =   1000.0
-    g_L_LN  =   21.0
+    g_L_LN  =   21.5
     g_KL_LN =   1.43
-    g_Ca_LN =   286.0
+    g_Ca_LN =   290.0
     g_KCa_LN=   35.8
 
     # Nernst reversal potentials, in mV
@@ -890,7 +890,7 @@ class LN:
         yield self.dCa_dt(VV, ss, vv, Ca)
 
     def get_initial_condition(self):
-        return [-65.0, 0.0, 0.0, 0.8, 0.0, 0.2]
+        return [-60.0, 0.0, 0.0, 0.8, 0.0, 0.2]
 
     def get_ind(self):
         return self.ii
@@ -927,7 +927,7 @@ class LN:
     def dV_dt(self, V, n, q, s, v, t, Ca, i_syn):
         return -1/self.C_m *(self.I_K_LN(V, n) + self.I_L_LN(V) + self.I_KCa(V, q) + \
                         self.I_Ca(V, s, v) + self.I_KL_LN(V) - self.i_inj + i_syn)
-    def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.2)/150.0
+    def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.24)/150.0
     def ds_dt(self, V, s): return (self.s0(V)-s)/self.ts(V)
     def dv_dt(self, V, v): return (self.v0(V)-v)/self.tv(V)
     def dq_dt(self, Ca, q): return (self.q0(Ca)-q)/self.tq(Ca)
@@ -973,7 +973,7 @@ class Synapse_gaba_LN:
         return [self.gGABA, self.E_gaba]
 
     def get_initial_condition(self):
-        return [0.1]
+        return [0.0]
 
 
 class Synapse_gaba_LN_with_slow:
@@ -987,7 +987,8 @@ class Synapse_gaba_LN_with_slow:
     Kp = 1.5
     Vp = -20.0
 
-    s1 = 0.001 # uM^{-1}ms^{-1} check units?
+    #s1 = 0.001 # uM^{-1}ms^{-1} check units?
+    s1 = 1.0 #realistically should be 1e-3 ish
     s2 = 0.0025 # ms^{-1}
     s3 = 0.1 # ms^{-1}
     s4 = 0.06 # ms^{-1}
@@ -996,7 +997,7 @@ class Synapse_gaba_LN_with_slow:
 
     DIM = 3
     CURRENTS = 2
-    def __init__(self, gGABA = 110.0, gSI = 400.0):
+    def __init__(self, gGABA = 400.0, gSI = 400.0):
         self.r = None
         self.weight = 1.0
         self.gGABA = gGABA
@@ -1020,11 +1021,12 @@ class Synapse_gaba_LN_with_slow:
         r = self.r #This corresponds to fast GABA
         s = self.s # This is the fraction of activated receptors for SI
         G = self.G # This is the concentration of receptor coupled G proteins
-        yield self.alphaR*self.Tm*self.T_conc(Vpre)*(1-r) - self.betaR*r
-        yield self.s1*(1.0 - s)*self.T_conc(Vpre) - self.s2*s
+        yield self.alphaR*self.Tm*self.T_gaba_A(Vpre)*(1-r) - self.betaR*r
+        yield self.s1*(1.0 - s)*self.T_gaba_B(Vpre) - self.s2*s
         yield self.s3*s - self.s4*G
 
-    def T_conc(self,V): return 1.0/(1.0+sym_backend.exp(-(V - self.Vp)/self.Kp))
+    def T_gaba_A(self,V): return 1.0/(1.0+sym_backend.exp(-(V - self.Vp)/self.Kp))
+    def T_gaba_B(self,V): return 1.0/(1.0+sym_backend.exp(-(V - 2.0)/5.0))
 
     def get_params(self):
         return [self.gGABA, self.E_gaba, self.gSI, self.E_K, self.K]
@@ -1045,9 +1047,9 @@ class Synapse_nAch_PN_2:
     #inhibition
     E_nAch = 0.0
     r1 = 1.5 #1.5
-    tau = 1 #1
+    tau = 1.0 #1
     Kp = 1.5
-    Vp = -20.0
+    Vp = 0.0# -20 for gaba
 
     DIM = 1
     CURRENTS = 1
