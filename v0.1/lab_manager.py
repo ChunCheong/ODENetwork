@@ -87,10 +87,14 @@ run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5'):
 
 Run the lab.
 """
-def run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5'):
+def run_lab(f, initial_conditions, time_sampled_range, integrator='dopri5',
+    compile=False):
     dim_total = len(initial_conditions)
     ODE = jitcode(f, n=dim_total)
-    ODE.generate_f_C(simplify=False, do_cse=False)#, chunk_size=150)
+    if compile:
+        ODE.generate_f_C(simplify=False, do_cse=False)#, chunk_size=150)
+    else:
+        ODE.generate_lambdas()
     ODE.set_integrator(integrator)# ,nsteps=10000000)
     ODE.set_initial_value(initial_conditions, 0.0)
     data = np.zeros((len(time_sampled_range), dim_total)) # will set it to np.empty
@@ -231,25 +235,29 @@ def show_all_neuron_in_layer(time_sampled_range, data, net, layer_idx):
     plt.show()
 
 def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
-        pos_neurons = net.layers[layer_idx].nodes()
-        for pos_neuron in pos_neurons:
-            pre_neurons = list(net.predecessors(pos_neuron))
-            for pre_neuron in pre_neurons:
-                synapse = net[pre_neuron][pos_neuron]["synapse"]
-                THETA_D = synapse.THETA_D
-                THETA_P = synapse.THETA_P
-                ii = synapse.ii
-                fig, axes = plt.subplots(2,1,sharex=True)
-                syn_weight = data[:,ii]
-                ca = data[:,ii+2]
-                axes[0].plot(time_sampled_range, syn_weight, label="synaptic weight")
-                axes[1].plot(time_sampled_range, ca, label="Ca")
-                axes[1].legend()
-                axes[1].axhline(THETA_D, color="orange", label="theta_d")
-                axes[1].axhline(THETA_P, color="green", label="theta_p")
-                plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
-        plt.show()
-
+    def sigmoid(x):
+        return 1./(1.+ np.exp(-x))
+    pos_neurons = net.layers[layer_idx].nodes()
+    for pos_neuron in pos_neurons:
+        pre_neurons = list(net.predecessors(pos_neuron))
+        for pre_neuron in pre_neurons:
+            synapse = net[pre_neuron][pos_neuron]["synapse"]
+            THETA_D = synapse.THETA_D
+            THETA_P = synapse.THETA_P
+            ii = synapse.ii
+            fig, axes = plt.subplots(3,1,sharex=True)
+            red_syn_weight = data[:,ii]
+            ca = data[:,ii+2]
+            axes[0].plot(time_sampled_range, red_syn_weight, label="reduced synaptic weight")
+            axes[0].legend()
+            axes[1].plot(time_sampled_range, sigmoid(red_syn_weight), label="synaptic weight")
+            axes[1].legend()
+            axes[2].plot(time_sampled_range, ca, label="Ca")
+            axes[2].axhline(THETA_D, color="orange", label="theta_d")
+            axes[2].axhline(THETA_P, color="green", label="theta_p")
+            axes[2].legend()
+            plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
+            plt.show()
 """
 Plot the local field potential for AL.py
 """
