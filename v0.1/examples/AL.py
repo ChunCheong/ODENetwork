@@ -1,3 +1,12 @@
+'''
+This is a test example of a small antennal lobe. It consists of two
+inhibitory local neurons and two projection neurons. The archtecture
+of the network can be seen in Bazhenov's 2001 paper. This small network
+demonstrates key characteristics in a large antennal lobe: (1) competition
+between mutually inhibited local neurons and (2) transient synchrony of
+projection neurons with the local field potential.
+'''
+
 # begin boiler plate for compatibility
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
@@ -8,7 +17,12 @@ elif sys.version_info.major == 2:
     pass
 # end boiler plate for compatibility
 
-import lab_manager as lm # have to combine two lab_manager later
+
+# This is a janky solution to import the modules. We will need to go back
+# and make this a proper package
+sys.path.append('..')
+
+import lab_manager as lm
 
 import scipy as sp
 import numpy as np
@@ -50,6 +64,7 @@ time_len = 600.0 #Run for 600 ms
 dt = 0.02 # Integration time step 0.02 ms
 time_sampled_range = np.arange(0., time_len, dt)
 
+# Run the lab and get output
 data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5')
 
 
@@ -84,7 +99,6 @@ for (n, neuron) in enumerate(n0):
     axes[-1].set_xlabel("Time [ms]")
     axes[n].set_xlim(time_sampled_range[0],time_sampled_range[-1])
     axes[n].set_title("Local Neuron %d"%(neuron.ni+1))
-    np.savetxt('test_figures/LN{0}_full.txt'.format(neuron.ni+1),v_m)
 
 for (n, neuron) in enumerate(node_list):
     ii = neuron.ii
@@ -92,6 +106,5 @@ for (n, neuron) in enumerate(node_list):
     axes[n+2].plot(time_sampled_range, v_m, label=r"Projection Neuron %d"%(neuron.ni-1),color=next(cycol))
     axes[n+2].set_ylabel(r"$V_m$ [mV]")
     axes[n+2].set_title("Projection Neuron %d"%(neuron.ni-1))
-    np.savetxt('test_figures/PN{0}_full.txt'.format(neuron.ni-1),v_m)
 
 plt.show()
