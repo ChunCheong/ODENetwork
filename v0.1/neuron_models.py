@@ -785,6 +785,7 @@ class Synapse_glu_HH:
     Vp = 7.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, para = None):
         self.r = None
         self.weight = 1.0
@@ -806,6 +807,8 @@ class Synapse_glu_HH:
         return self.ii
     def get_initial_condition(self):
         return [0.1]
+    def get_prefix_and_rev_po(self):
+        return [[self.Gglu*self.weight*self.r,self.E_cl]]
 
 class Synapse_gaba_HH:
     #inhibition
@@ -820,6 +823,7 @@ class Synapse_gaba_HH:
     Vp = 7.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, para = None):
         self.r = None
         self.weight = 1.0
@@ -841,6 +845,9 @@ class Synapse_gaba_HH:
 
     def get_params(self):
         return [self.gGABA, self.E_gaba]
+
+    def get_prefix_and_rev_po(self):
+        return [[self.gGABA*self.weight*self.r,self.E_gaba]]
 
     def get_initial_condition(self):
         return [0.1]
@@ -921,10 +928,12 @@ class PN_2:
         i_inj = self.i_inj
 
 
+        ## Currently, this doesn't work as it causes a segfault
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-                    for (i,synapse) in enumerate(pre_synapses))
+
         i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
                         self.I_L(VV) + self.I_A(VV,zz,uu) + self.I_KL(VV)
                         + i_syn)
@@ -946,7 +955,8 @@ class PN_2:
     def get_volt(self):
         return self.V
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
 
     def x_eqm(self,V,theta,sigma): return 0.5*(1.0 - sym_backend.tanh(0.5*(V-theta)/sigma))
     def tau_x(self,V,theta,sigma,t0,t1): return t0 + t1*(1.0-sym_backend.tanh((V-theta)/sigma)**2)
@@ -967,7 +977,7 @@ class PN_2:
     def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
 
     def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
-    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+    def tz(self, V): return 1.0/(sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.37)
 
     def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
 
@@ -1038,9 +1048,10 @@ class PN:
         uu = self.u
         i_inj = self.i_inj
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-                    for (i,synapse) in enumerate(pre_synapses))
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
+
         i_base = (self.I_Na(VV, mm, hh) + self.I_K(VV, nn) +
                     self.I_L(VV) + self.I_A(VV,zz,uu) + self.I_KL(VV)
                     + i_syn)
@@ -1062,7 +1073,9 @@ class PN:
     def get_volt(self):
         return self.V
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
+
 
     def dV_dt(self, V, m, h, n, z, u, t, i_syn):
         return -1/self.C_m *(self.I_Na(V, m, h) + self.I_K(V, n) +
@@ -1084,7 +1097,7 @@ class PN:
     def b_n(self, V): return 0.25*sym_backend.exp(-(V-20+self.shift)/40.0)
 
     def z0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+60)/8.5))
-    def tz(self, V): return 0.27/sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.1
+    def tz(self, V): return 1.0/(sym_backend.exp((V+35.8)/19.7)+sym_backend.exp(-(V+79.7)/12.7)+0.37)
 
     def u0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+78)/6.0))
 
@@ -1107,9 +1120,9 @@ class LN:
     C_m  =   142.0 # membrane capacitance, in pF
     # maximum conducances, in nS
     g_K_LN  =   1000.0
-    g_L_LN  =   21.0
+    g_L_LN  =   21.5
     g_KL_LN =   1.43
-    g_Ca_LN =   286.0
+    g_Ca_LN =   290.0
     g_KCa_LN=   35.8
 
     # Nernst reversal potentials, in mV
@@ -1152,10 +1165,9 @@ class LN:
         Ca = self.Ca
         i_inj = self.i_inj
 
-        i_syn = sum(self.I_syn(VV, y(synapse.get_ind()),
-                    synapse.get_params()[0], synapse.get_params()[1], synapse.weight)
-                    for (i,synapse) in enumerate(pre_synapses))
-
+        i_syn = sum([sum([self.I_syn_modified(VV,
+            synapse.get_prefix_and_rev_po()[j][0],synapse.get_prefix_and_rev_po()[j][1])
+            for j in range(synapse.CURRENTS)]) for (i,synapse) in enumerate(pre_synapses)])
         i_base = (self.I_K_LN(VV, nn) + self.I_L_LN(VV) + self.I_KCa(VV, qq) + \
                         self.I_Ca(VV, ss, vv) + self.I_KL_LN(VV) + i_syn)
 
@@ -1168,7 +1180,7 @@ class LN:
         yield self.dCa_dt(VV, ss, vv, Ca)
 
     def get_initial_condition(self):
-        return [-65.0, 0.0, 0.0, 0.8, 0.0, 0.2]
+        return [-60.0, 0.0, 0.0, 0.8, 0.0, 0.2]
 
     def get_ind(self):
         return self.ii
@@ -1176,7 +1188,8 @@ class LN:
     def get_volt(self):
         return self.V
 
-    def I_syn(self, V, r, gNt, E_nt, w): return gNt*r*w*(V - E_nt)
+    def I_syn_modified(self,V,prefix,E_rev):
+        return prefix*(V-E_rev)
 
     def a_nl(self, V): return 0.02*(-(35.0+V)/(sym_backend.exp(-(35.0+V)/5.0)-1.0))
     def b_nl(self, V): return 0.5*sym_backend.exp((-(40.0+V)/40.0))
@@ -1185,7 +1198,8 @@ class LN:
     def tnl(self, V): return 4.65/(self.a_nl(V)+self.b_nl(V))
 
     def s0(self, V): return 0.5*(1-sym_backend.tanh(-0.5*(V+20.0)/6.5))
-    def ts(self, V): return 1+(V+30)*0.014
+    #def ts(self, V): return 1+(V+30)*0.014
+    def ts(self,V): return 1.5
 
     def v0(self, V): return 0.5*(1-sym_backend.tanh(0.5*(V+25.0)/12.0))
     def tv(self, V): return 0.3*sym_backend.exp((V-40)/13.0)+0.002*sym_backend.exp(-(V-60.0)/29.0)
@@ -1203,7 +1217,7 @@ class LN:
     def dV_dt(self, V, n, q, s, v, t, Ca, i_syn):
         return -1/self.C_m *(self.I_K_LN(V, n) + self.I_L_LN(V) + self.I_KCa(V, q) + \
                         self.I_Ca(V, s, v) + self.I_KL_LN(V) - self.i_inj + i_syn)
-    def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.2)/150.0
+    def dCa_dt(self, V, s, v, Ca): return -2.86e-6*self.I_Ca(V, s, v)-(Ca-0.24)/150.0
     def ds_dt(self, V, s): return (self.s0(V)-s)/self.ts(V)
     def dv_dt(self, V, v): return (self.v0(V)-v)/self.tv(V)
     def dq_dt(self, Ca, q): return (self.q0(Ca)-q)/self.tq(Ca)
@@ -1222,6 +1236,7 @@ class Synapse_gaba_LN:
     Vp = -20.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, gGABA = 800.0):
         self.r = None
         self.weight = 1.0
@@ -1242,25 +1257,92 @@ class Synapse_gaba_LN:
         r = self.r
         yield (self.alphaR*self.Tm/(1+sym_backend.exp(-(Vpre - self.Vp)/self.Kp)))*(1-r) - self.betaR*r
 
+    def get_prefix_and_rev_po(self):
+        return [[self.gGABA*self.r*self.weight,self.E_gaba]]
     def get_params(self):
         return [self.gGABA, self.E_gaba]
 
     def get_initial_condition(self):
-        return [0.1]
+        return [0.0]
+
+
+class Synapse_gaba_LN_with_slow:
+    #inhibition
+    E_gaba = -70.0
+    alphaR = 10.0
+    betaR = 0.16
+    Tm = 1.0
+
+
+    Kp = 1.5
+    Vp = -20.0
+
+    #s1 = 0.001 # uM^{-1}ms^{-1} check units?
+    s1 = 1.0 #realistically should be 1e-3 ish
+    s2 = 0.0025 # ms^{-1}
+    s3 = 0.1 # ms^{-1}
+    s4 = 0.06 # ms^{-1}
+    K = 100.0 # uM^4
+    E_K = -95.0 # mV
+
+    DIM = 3
+    CURRENTS = 2
+    def __init__(self, gGABA = 400.0, gSI = 400.0):
+        self.r = None
+        self.weight = 1.0
+        self.gGABA = gGABA
+        self.gSI = gSI
+
+
+    def set_integration_index(self, i):
+        self.ii = i
+        self.r = y(i)
+        self.s = y(i+1)
+        self.G = y(i+2)
+
+    def get_ind(self):
+        return self.ii
+
+    def fix_weight(self, w):
+        self.weight = w
+
+    def dydt(self, pre_neuron, pos_neuron):
+        Vpre = pre_neuron.V
+        r = self.r #This corresponds to fast GABA
+        s = self.s # This is the fraction of activated receptors for SI
+        G = self.G # This is the concentration of receptor coupled G proteins
+        yield self.alphaR*self.Tm*self.T_gaba_A(Vpre)*(1-r) - self.betaR*r
+        yield self.s1*(1.0 - s)*self.T_gaba_B(Vpre) - self.s2*s
+        yield self.s3*s - self.s4*G
+
+    def T_gaba_A(self,V): return 1.0/(1.0+sym_backend.exp(-(V - self.Vp)/self.Kp))
+    def T_gaba_B(self,V): return 1.0/(1.0+sym_backend.exp(-(V - 2.0)/5.0))
+
+    def get_params(self):
+        return [self.gGABA, self.E_gaba, self.gSI, self.E_K, self.K]
+
+    def get_prefix_and_rev_po(self):
+        return [[self.gGABA*self.r*self.weight,self.E_gaba],
+        [self.gSI*self.G**4/(self.G**4 + self.K)*self.weight,self.E_K]]
+
+    def get_initial_condition(self):
+        return [0.0,0.0,0.0]
 
 
 """
 Different Version of an nAch Synapse
 """
 class Synapse_nAch_PN_2:
+    SI = False
     #inhibition
     E_nAch = 0.0
-    r1 = 1.5
-    tau = 1.0
+    r1 = 1.5 #1.5
+    tau = 1.0 #1
     Kp = 1.5
-    Vp = -20.0
+    Vp = 0.0# -20 for gaba
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, gnAch = 300.0):
         self.r = None
         self.weight = 1.0
@@ -1289,6 +1371,8 @@ class Synapse_nAch_PN_2:
 
     def get_initial_condition(self):
         return [0.0]
+    def get_prefix_and_rev_po(self):
+        return [[self.gnAch*self.r,self.E_nAch]]
 
 class Synapse_nAch_PN:
     #Excitation
@@ -1296,11 +1380,13 @@ class Synapse_nAch_PN:
     alphaR = 10.0
     betaR = 0.2
     Tm = 0.5
+    SI = False
 
     Kp = 1.5
     Vp = -20.0
 
     DIM = 1
+    CURRENTS = 1
     def __init__(self, gnAch = 300.0):
         self.r = None
         self.weight = 1.0
@@ -1324,6 +1410,9 @@ class Synapse_nAch_PN:
 
     def get_params(self):
         return [self.gnAch, self.E_nAch]
+
+    def get_prefix_and_rev_po(self):
+        return [[self.gnAch*self.r,self.E_nAch]]
 
     def get_initial_condition(self):
         return [0.0]

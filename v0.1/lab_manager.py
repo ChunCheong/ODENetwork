@@ -21,6 +21,7 @@ from jitcode import integrator_tools
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
+import random
 # For Mac user
 import matplotlib
 matplotlib.use("TKagg")
@@ -271,3 +272,24 @@ def plot_LFP(time_sampled_range, data, net, layer_pn = 1):
     plt.plot(t, np.mean(sol[inds], axis = 0))
     plt.show()
     #fig.savefig('LFP62.pdf', bbox_inches='tight')
+def show_random_neuron_in_layer(time_sampled_range, data, net, layer_idx, num_neurons=1):
+    THETA_D = nm.PlasticNMDASynapse.THETA_D
+    THETA_P = nm.PlasticNMDASynapse.THETA_P
+
+    pre_neurons = net.layers[layer_idx].nodes()
+    display_neurons = random.sample(pre_neurons,num_neurons)
+    fig, axes = plt.subplots(2,1,sharex=True)
+    for (n, neuron) in enumerate(display_neurons):
+        ii = neuron.ii
+        v_m = data[:,ii]
+        i_inj = electrodes.sym2num(t, neuron.i_inj)
+        i_inj = i_inj(time_sampled_range)
+        axes[1].plot(time_sampled_range, i_inj, label=r"$I_{inj}$ Neuron %d"%neuron.ni)
+        axes[1].set_ylabel("I [pA]")
+        axes[1].legend()
+        axes[0].plot(time_sampled_range, v_m, label="Neuron %d"%neuron.ni)
+        axes[0].set_ylabel(r"$V_m$ [mV]")
+        axes[0].legend()
+        axes[-1].set_xlabel("time [ms]")
+        plt.suptitle("Random Neuron in layer {}".format(layer_idx))
+    plt.show()

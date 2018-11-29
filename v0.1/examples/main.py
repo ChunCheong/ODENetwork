@@ -1,4 +1,9 @@
 # main.py
+# Solution which will change when we make this a package!
+import sys
+sys.path.append('..')
+
+
 import numpy as np
 import networks
 import neuron_models as nm

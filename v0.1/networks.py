@@ -131,11 +131,11 @@ def interconnect(layer1, layer2, synapse1, synapse2, prob1, prob2, g1, g2):
     return net3
 
 #specifically for the 6PN, 2LN network in Fig1 Bazhenov 2001
-def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
-    gLN = 400.0
-    gLNPN = 800.0
-    gPN = 350.0
-    gPNLN = 300.0
+def manual_connect(LNs, PNs, LNSynapse, PNSynapse, gLN = 400.0, gLNPN = 800.0, gPN = 350.0, gPNLN = 300.0 ):
+    #test values
+    gLN = 110.0 #400
+    gLNPN = 400.0 #800
+
 
     #connect LNs together
     connect_layer(LNs, LNSynapse, 1.0, gLN)
@@ -176,23 +176,20 @@ def manual_connect(LNs, PNs, LNSynapse, PNSynapse):
     return AL
 
 #Creates AL from the 2001 Bazhenov paper
-def create_AL_man(LNClass, PNClass, LNSynapse, PNSynapse):
+def create_AL_man(LNClass, PNClass, LNSynapse, PNSynapse, gLN=400.0, gLNPN=800.0, gPN=350.0, gPNLN=300.0):
     LNs = get_single_layer(LNClass, 2)
     PNs = get_single_layer(PNClass, 6)
 
-    AL = manual_connect(LNs, PNs, LNSynapse, PNSynapse)
+    AL = manual_connect(LNs, PNs, LNSynapse, PNSynapse, gLN, gLNPN, gPN, gPNLN)
     return AL
 
+
 #Create_AL creates AL with random connections with prob 0.5
-def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums):
+def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums, gLN = 400.0, gLNPN = 800, gPN = 350, gPNLN = 300):
     num_layer = len(neuron_nums)
     LNs = get_single_layer(LNClass, neuron_nums[0])
     PNs = get_single_layer(PNClass, neuron_nums[1])
 
-    gLN = 400.0
-    gLNPN = 800.0
-    gPN = 350.0
-    gPNLN = 300.0
     connect_prob_LN = 0.5
     connect_prob_PN = 0.5
     connect_layer(LNs, LNSynapse, connect_prob_LN, gLN)
