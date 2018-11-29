@@ -25,15 +25,27 @@ import math
 """
 a simple experiment playing with calcium-based STDP in a 2-layer FC network
 """
-def delay_pulses_on_layer_0_and_1(net, dts, i_max=50.):
+
+def pulse_on_layer(net, layer_idx, t0=50., i_max=50.):
+    w = 1. #ms
+    for (i,neuron) in enumerate(net.layers[layer_idx].nodes()):
+        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0,w) # the jitcode t
+
+def pulse_train_on_layer(net, layer_idx, t0s, i_max=50.):
+    w = 1. #ms
+    i_inj = i_max*sum(electrodes.unit_pulse(t,t0,w) for t0 in t0s)
+    for (i,neuron) in enumerate(net.layers[layer_idx].nodes()):
+        neuron.i_inj = i_inj # the jitcode t
+
+def delay_pulses_on_layer_0_and_1(net, t0s=[0., 20], i_max=50.):
     #i_max = 50. #5. # (some unit)
-    t0 = 50. # ms
+    # t0=50. # ms
     #dts = 10.
     w = 1. #ms
     for (i,neuron) in enumerate(net.layers[0].nodes()):
-        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0-dts[i],w) # the jitcode t
+        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0s[0],w) # the jitcode t
     for neuron in net.layers[1].nodes():
-        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0,w)
+        neuron.i_inj = i_max*electrodes.unit_pulse(t,t0s[1],w)
 
 def constant_current_on_top_layer(net, i_max=50.):
     #i_max = 50. #5. # (some unit)
