@@ -9,11 +9,7 @@ It does what a lab manager should be doing. i.e
 from __future__ import absolute_import, division, print_function
 from __future__ import unicode_literals
 import sys
-if sys.version_info.major > 2:
-    xrange = range
-elif sys.version_info.major == 2:
-    pass
-# end boiler plate for compatibility
+import pandas as pd
 
 import numpy as np
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
@@ -258,10 +254,33 @@ def show_all_synaspe_onto_layer(time_sampled_range, data, net, layer_idx):
             axes[2].legend()
             plt.suptitle("w_{}{}".format(pre_neuron.ni, pos_neuron.ni))
             plt.show()
+
+
+"""
+Helper function to smooth data using exponential weighted moving weighted moving average
+"""
+def ewma_pd(x,y):
+    ewma = pd.Series.ewm
+    df = pd.Series(y)
+    return ewma(df,span=100).mean()
+
 """
 Plot the local field potential for AL.py
+
+Args:
+    time_sampled_range:
+        A time array to be used for plotting
+    data:
+        The output of integration.
+    net:
+        The network structure
+    layer_pn:
+        The layer that you want to do the averaging over
+    smooth (optional) default=False:
+        An option to smooth the local field potential. Useful to see qualitative
+        properties in small networks.
 """
-def plot_LFP(time_sampled_range, data, net, layer_pn = 1):
+def plot_LFP(time_sampled_range, data, net, layer_pn = 1, smooth=False):
     t = time_sampled_range
     fig = plt.figure(figsize = (8,5))
     plt.title('Local Field Potential')
@@ -269,9 +288,28 @@ def plot_LFP(time_sampled_range, data, net, layer_pn = 1):
     plt.xlabel('time (ms)')
     inds = np.array([n.ii for n in net.layers[layer_pn].nodes()])
     sol = np.transpose(data)
-    plt.plot(t, np.mean(sol[inds], axis = 0))
+    lfp = np.mean(sol[inds],axis=0)
+    if smooth:
+        lfp = ewma_pd(t,lfp)
+
+    plt.plot(t, lfp,linewidth=2)
     plt.show()
-    #fig.savefig('LFP62.pdf', bbox_inches='tight')
+
+"""
+This function randomly plots a specified number of neurons in a layer.
+
+Args:
+    time_sampled_range:
+        A time array to be used for plotting
+    data:
+        The output of integration.
+    net:
+        The network structure
+    layder_idx:
+        The layer that you want to display neurons from
+    num_neurons (optional) default=1:
+        The number of neurons you want to display from the given layer
+"""
 def show_random_neuron_in_layer(time_sampled_range, data, net, layer_idx, num_neurons=1):
     THETA_D = nm.PlasticNMDASynapse.THETA_D
     THETA_P = nm.PlasticNMDASynapse.THETA_P

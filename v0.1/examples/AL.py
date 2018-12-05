@@ -65,7 +65,7 @@ dt = 0.02 # Integration time step 0.02 ms
 time_sampled_range = np.arange(0., time_len, dt)
 
 # Run the lab and get output
-data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5')
+data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5',compile=True)
 
 #save PN data for analysis
 V_vec = []
