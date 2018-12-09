@@ -192,8 +192,10 @@ def create_AL(LNClass, PNClass, LNSynapse, PNSynapse, neuron_nums, gLN = 400.0, 
 
     connect_prob_LN = 0.5
     connect_prob_PN = 0.5
-    connect_layer(LNs, LNSynapse, connect_prob_LN, gLN)
-    connect_layer(PNs, PNSynapse, connect_prob_PN, gPN)
+    if gLN >= 0:
+        connect_layer(LNs, LNSynapse, connect_prob_LN, gLN)
+    if gPN >= 0:
+        connect_layer(PNs, PNSynapse, connect_prob_PN, gPN)
 
     inter_connect_prob_LN = 0.5
     inter_connect_prob_PN = 0.5

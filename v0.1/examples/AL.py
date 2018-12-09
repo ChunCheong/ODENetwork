@@ -67,7 +67,13 @@ time_sampled_range = np.arange(0., time_len, dt)
 # Run the lab and get output
 data = lm.run_lab(f, initial_conditions, time_sampled_range, integrator = 'dopri5',compile=True)
 
-
+#save PN data for analysis
+V_vec = []
+all_neurons = AL.layers[1].nodes()
+for (n, neuron) in enumerate(all_neurons):
+    ii = neuron.ii
+    V_vec.append(data[:,ii])
+np.save('AL_data_62', V_vec)
 # This is code generated to plot this specific example. There are other plotting
 # functions within the lab_manager file.
 
@@ -102,7 +108,6 @@ for (n, neuron) in enumerate(n0):
 
 for (n, neuron) in enumerate(node_list):
     ii = neuron.ii
-    v_m = data[:,ii]
     axes[n+2].plot(time_sampled_range, v_m, label=r"Projection Neuron %d"%(neuron.ni-1),color=next(cycol))
     axes[n+2].set_ylabel(r"$V_m$ [mV]")
     axes[n+2].set_title("Projection Neuron %d"%(neuron.ni-1))

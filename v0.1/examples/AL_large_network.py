@@ -24,9 +24,9 @@ from itertools import chain
 
 #First number is #LNs, second is #PNs
 neuron_nums = [30, 90]
-#Create_AL creates AL with random connections with prob 0.5
+#Create_AL creates AL with random connections with prob 0.5, -1 conductivity -> no connection
 AL = net.create_AL(nm.LN, nm.PN_2, nm.Synapse_gaba_LN_with_slow, nm.Synapse_nAch_PN_2, \
-neuron_nums, gLN = 100.0, gLNPN = 400.0, gPN = 0.0, gPNLN = 600.0)
+neuron_nums, gLN = 100.0, gLNPN = 400.0, gPN = -1.0, gPNLN = 600.0)
 #Set up the experiment
 num_layers = 2
 
