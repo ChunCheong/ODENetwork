@@ -5,23 +5,18 @@ It does what a lab manager should be doing. i.e
 1. set_up_lab()
 2. run_lab()
 """
-# begin boiler plate for compatibility
-from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
+
 import sys
 import pandas as pd
-
 import numpy as np
+import random
+import matplotlib.pyplot as plt
+
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
 from jitcode import integrator_tools
 import networks #; reload(networks)
 import electrodes#; reload(electrodes)
 import neuron_models as nm
-import random
-# For Mac user
-import matplotlib
-matplotlib.use("TKagg")
-import matplotlib.pyplot as plt
 
 """
 set_up_lab(net):
