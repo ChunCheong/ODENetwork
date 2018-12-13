@@ -52,6 +52,42 @@ def fully_connect(net1, net2, SynapseClass):
     net3.labels = net1.labels + net2.labels
     return net3
 
+"""
+fully_connect_between_layer(net, layer_idxs, SynapseClass):
+
+Unlike fully_connect(), it adds synapse(s) to the network from
+layer layer_idxs[0] to layer layer_idxs[1], instead of returning a new network.
+i.e input net will be modified.
+"""
+
+def fully_connect_between_layer(net, layer_idxs, SynapseClass):
+    if len(layer_idxs) != 2:
+        print("Expected 2 layers as input, got {}".format(len(layer_idxs)))
+    i, j = layer_idxs
+    pre_neurons, pos_neurons = net.layers[i].nodes(), net.layers[j].nodes()
+    for pos_neuron in pos_neurons:
+        for pre_neuron in pre_neurons:
+            # order matters when adding edges
+            net.add_edge(pre_neuron, pos_neuron, synapse=SynapseClass())
+
+"""
+stack(net1, net2):
+
+Return a network with net1 and net2 stacked
+No connection is made. (The returned graph will be block-diagonal.)
+
+"""
+def stack(net1, net2):
+    net3 = nx.compose(net1, net2)
+    net3.layers = net1.layers + net2.layers
+    net3.labels = net1
+
+"""
+get_multilayer_fc(NeuronClass, SynapseClass, neuron_nums):
+
+Return a multilayer fully-connected feedforward network.
+
+"""
 def get_multilayer_fc(NeuronClass, SynapseClass, neuron_nums):
     num_layer = len(neuron_nums)
     net = get_single_layer(NeuronClass, neuron_nums[0])
