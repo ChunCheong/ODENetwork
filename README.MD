@@ -14,12 +14,13 @@ feel free to comment/contribute/test!
 
 ## Getting Started
 
-Try running main.py to have a taste of what is it doing. If you think this is
-your thing, then next you can define your own models.
+Try running examples/main.py to have a taste of what is it doing.
+If you think this is your thing, then next you can define your own models!
 You can put any kind of neuron models, network topologies and input protocol
-under "neruon_models.py", "networks.py" and "experiments.py" respectively. In
+under "neuron_models.py", "networks.py" and "experiments.py" respectively. In
 most cases, you probably don't need to modify "lab_manager.py".
-You might also want look at the examples under "/jitcode_example".
+You might also want look at the examples specific for usages of JiTCODE
+under "/jitcode_example".
 
 
 ### Prerequisites
@@ -27,6 +28,14 @@ You might also want look at the examples under "/jitcode_example".
 1. NetworkX (https://networkx.github.io/)
 
 2. JiTCODE (https://jitcode.readthedocs.io/en/v1.3.0/#)
+
+
+### Style Guide
+Incoherent style makes reading hard; And it is particularly the case when there
+are more than one contributors. Therefore, while is not strictly enforced, it is
+highly recommended that contributors to take a look at the PEP8 style guide:
+https://www.python.org/dev/peps/pep-0008/
+
 
 ### Known Issues
 
