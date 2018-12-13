@@ -51,7 +51,7 @@ libraries that is compatible with our code:
 Any error message(s) from scipy, jitcode, integrators...etc? : None
 
 ##### Environment 2.
-Python: 2.7.15 |Anaconda custom (64-bit)| (default, Oct 10 2018, 21:32:13) 
+Python: 2.7.15 |Anaconda custom (64-bit)| (default, Oct 10 2018, 21:32:13)
 [GCC 7.3.0]
 Jitcode: 0.61
 scipy: 1.1.0
@@ -80,7 +80,12 @@ matplotlib with Mac user which does not concern us here.
 Jonathan C.C. Lam [https://github.com/ChunCheong]
 [https://www.linkedin.com/in/jonathan-chun-cheong-lam-707b25143]
 
-David Li (UCSD)
+Jason Platt
+
+Anna Miller
+
+David Li
+
 
 (And put you name here if you want to join the band!)
 
