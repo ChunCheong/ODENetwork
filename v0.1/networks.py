@@ -3,25 +3,15 @@ networks.py
 A module that contains all the networks architecture classes.
 Define layers or combination of layers here.
 """
-# begin boiler plate for compatibility
-from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
-import sys
-from itertools import cycle
-if sys.version_info.major > 2:
-    xrange = range
-elif sys.version_info.major == 2:
-    pass
-# end boiler plate for compatibility
 
 import numpy as np
-import neuron_models as nm
-import networkx as nx
-# For mac users
-import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import random
+
+import neuron_models as nm
+import networkx as nx
+
+
 
 """ The most basic class"""
 class LayeredDiGraph(nx.DiGraph):
