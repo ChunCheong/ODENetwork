@@ -11,6 +11,9 @@ import pandas as pd
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+# might be useful for mac user, uncommnet below if needed
+# import matplotlib
+# matplotlib.use("TKAgg")
 
 from jitcode import jitcode, y, t # this "y" will now allow symbolic tracking
 from jitcode import integrator_tools

@@ -1,12 +1,13 @@
-import matplotlib
-matplotlib.use("TKAgg")
+# might be useful for mac user, uncommnet below if needed
+# import matplotlib
+# matplotlib.use("TKAgg")
 
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 from numpy import linalg as LA
-from mpl_toolkits.mplot3d import Axes3D 
+from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 import matplotlib.cm as cm
 import itertools
@@ -14,7 +15,7 @@ import itertools
 '''Counts the number of spikes in a time series.  Works well
 for data that isn't very noisy and consists of Na spikes'''
 def num_spikes(V, spike_thresh = 0):
-    return np.sum(sp.logical_and(V[:-1] < 
+    return np.sum(sp.logical_and(V[:-1] <
                   spike_thresh, V[1:]>= spike_thresh))
 
 '''Returns array of network activity defined by number of spikes
@@ -81,7 +82,3 @@ np.savetxt('projected_AL_30-90.txt', Xk)
 #         m = next(marker)
 #     ax.scatter(Xk[i, 0], Xk[i, 1], Xk[i, 2], color = c, marker = m)
 # plt.show()
-
-
-
-

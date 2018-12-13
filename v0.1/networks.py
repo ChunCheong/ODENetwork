@@ -6,6 +6,9 @@ Define layers or combination of layers here.
 
 import numpy as np
 import matplotlib.pyplot as plt
+# might be useful for mac user, uncommnet below if needed
+# import matplotlib
+# matplotlib.use("TKAgg")
 import random
 
 import neuron_models as nm

@@ -4,18 +4,9 @@ A module that contains various kind of input currents.
 To-dos:
 1. make sym2num for mutiple arguments
 """
-# begin boiler plate for compatibility
-from __future__ import absolute_import, division, print_function
-from __future__ import unicode_literals
-import sys
-if sys.version_info.major > 2:
-    xrange = range
-elif sys.version_info.major == 2:
-    pass
-# end boiler plate for compatibility
+import numpy as np
 
 from jitcode import t
-import numpy as np
 try:
     import symengine as sym_backend
 except:
