@@ -16,15 +16,27 @@ import networkx as nx
 
 
 
-""" The most basic class"""
+"""
+LayeredDiGraph(nx.DiGraph) is the most basic class, built upon nx.DiGraph.
+It can be initialized from any existing nx.DiGraph.
+
+Example:
+dg = nx.DiGraph(); dg.add_edges_from([(1, 2), (1, 3)])
+ldg = LayeredDiGraph(dg)
+"""
 class LayeredDiGraph(nx.DiGraph):
-    def __init__(self):
-        nx.DiGraph.__init__(self)
+    def __init__(self, g=None):
+        super().__init__()
+        if isinstance(g, nx.DiGraph):
+            self.__dict__.update(g.__dict__)
+        elif g is not None:
+            print("Input graph type not supported, ignoring input.")
         self.layers = [self]
         self.labels = []
 
+
 """
-Populate a single layer of num_neruon NeuronClass.
+Populate a single layer of num_neuron NeuronClass.
 """
 def get_single_layer(NeuronClass, num_neuron):
     sl = LayeredDiGraph()
@@ -95,6 +107,45 @@ def get_multilayer_fc(NeuronClass, SynapseClass, neuron_nums):
         sl = get_single_layer(NeuronClass, neuron_nums[i])
         net = fully_connect(net, sl, SynapseClass)
     return net
+
+"""
+get_nodes_data(net, data_key, default_val=np.nan):
+
+Return a 1-d array with data of data_key.
+
+Example:
+net = networks.get_single_layer(Neuron, 10)
+vs = get_nodes_data(net, "v")
+"""
+def get_nodes_data(net, data_key, default_val=np.nan):
+    data = np.empty(len(net))
+    for (i,n) in enumerate(net.nodes):
+         try:
+             data[i] = n.__dict__[data_key]
+         except:
+             data[i] = default_val
+    return data
+
+"""
+get_edges_data(net, data_key, default_val=np.nan):
+
+Return a 2-d array with data of data_key. The first and second index would be
+the pre- and pos- synaptic neuron respectively.
+
+Example:
+net = networks.get_multilayer_fc(Neuron, Synapse, [2,3])
+weights = get_nodes_data(net, "weight")
+"""
+def get_edges_data(net, data_key, default_val=0.):
+    index = dict(zip(list(net), range(len(net))))
+    data = np.full((len(net), len(net)), default_val)
+    edges = nx.to_edgelist(net)
+    for (n1, n2, edge) in edges:
+        try:
+            data[index[n1], index[n2]] = edge["synapse"].__dict__[data_key]
+        except:
+            data[index[n1], index[n2]] = default_val
+    return data
 
 
 """
