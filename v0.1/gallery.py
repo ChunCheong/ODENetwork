@@ -24,14 +24,14 @@ class InhibitorySynapse:
 
 #1200/54 = 23
 
-rn_para = dict(num_rn_group=10, rn_group_size=3,
+rn_para = dict(num_rn_group=10, rn_group_size=3, # real: 54 and 23
     RNClass=ExcitatoryNeuron, RNSynapseClass=ExcitatorySynapse)
 rn_para["RNClass"]
 rn = networks.get_receptor_neurons(**rn_para)
 rn.labels
 networks.draw_colored_layered_digraph(rn)
 
-glo_para = dict(num_pn=3, num_ln=5,
+glo_para = dict(num_pn=3, num_ln=5, # real: 3 and 30
     PNClass=ExcitatoryNeuron, LNClass=InhibitoryNeuron,
     PNSynapseClass=ExcitatorySynapse, LNSynapseClass=InhibitorySynapse)
 
@@ -44,13 +44,13 @@ al = networks.get_antennal_lobe(**al_para)
 al.layers
 networks.draw_colored_layered_digraph(al)
 
-mb_para = dict(num_kc=10,
+mb_para = dict(num_kc=10, # real: 2500
     KCClass=ExcitatoryNeuron, GGNClass=InhibitoryNeuron,
     KCSynapseClass=ExcitatorySynapse, GGNSynapseClass=ExcitatorySynapse)
 mb = networks.get_mushroom_body(**mb_para)
 mb.labels
 networks.draw_colored_layered_digraph(mb)
-bl_para = dict(num_bl=4,
+bl_para = dict(num_bl=4, #real: 34
     BLClass=InhibitoryNeuron, BLSynapseClass=InhibitorySynapse)
 bl = networks.get_beta_lobe(**bl_para)
 bl.labels
