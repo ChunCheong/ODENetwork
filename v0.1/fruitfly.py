@@ -48,16 +48,16 @@ architecture.
 #Layer 0: Receptors Neurons (RN) [input]
 rn_para = dict(num_rn_group=54, rn_group_size=23, # flies: 54 and 23
     RNClass=ExcitatoryNeuron, RNSynapseClass=ExcitatorySynapse)
-rn = networks.get_receptor_neurons(**rn_para)
-#networks.draw_colored_layered_digraph(rn)
+# rn = networks.get_receptor_neurons(**rn_para)
+# networks.draw_colored_layered_digraph(rn)
 
 #Layer 1: Antennal Lobe (AL) [first stage in separation]
 glo_para = dict(num_pn=3, num_ln=30, # flies: 3 and 30
     PNClass=ExcitatoryNeuron, LNClass=InhibitoryNeuron,
     PNSynapseClass=ExcitatorySynapse, LNSynapseClass=RandomSynapse)
 
-glo = networks.get_glomeruli(**glo_para)
-#networks.draw_colored_layered_digraph(glo)
+# glo = networks.get_glomeruli(**glo_para)
+# networks.draw_colored_layered_digraph(glo)
 
 al_para = dict(num_glo=54, glo_para=glo_para) # flies: 54
 al = networks.get_antennal_lobe(**al_para)
@@ -67,15 +67,14 @@ al = networks.get_antennal_lobe(**al_para)
 mb_para = dict(num_kc=2500, # flies: 2500
     KCClass=ExcitatoryNeuron, GGNClass=InhibitoryNeuron,
     KCSynapseClass=ExcitatorySynapse, GGNSynapseClass=ExcitatorySynapse)
-mb = networks.get_mushroom_body(**mb_para)
-#networks.draw_colored_layered_digraph(mb)
+# mb = networks.get_mushroom_body(**mb_para)
+# networks.draw_colored_layered_digraph(mb)
 
 #Layer 3: Beta-lobe (BL) [read-out]
 bl_para = dict(num_bl=34, #flies: 34
     BLClass=InhibitoryNeuron, BLSynapseClass=InhibitorySynapse)
-bl = networks.get_beta_lobe(**bl_para)
-#bl.labels
-#networks.draw_colored_layered_digraph(bl)
+# bl = networks.get_beta_lobe(**bl_para)
+# networks.draw_colored_layered_digraph(bl)
 
 other_para = dict(prob_r2a=0.5, prob_a2k=0.5, prob_k2b=0.5)
 
