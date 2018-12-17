@@ -6,10 +6,12 @@
 # Numbers of neurons are well-known, connectivity beteen anatomical stucture
 # are known, probabilities of random connections are less clear.
 # Anyway, details may change as we dig deeper over time.
+# Reference: https://www.overleaf.com/3872811452hqfrrvcxmyfs
 
 import networks
 import networkx as nx
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 
 # Some placeholders
@@ -29,6 +31,14 @@ class InhibitorySynapse:
     def __init__(self):
         self.weight = -1
 
+class RandomSynapse:
+    def __init__(self):
+        PROB_INHIB = 0.8 # LNs are 'mainly' inhibitory
+        if random.random() < PROB_INHIB:
+            self.weight = -1
+        else:
+            self.weight = 1
+
 """
 Please refer to the write-up for more functional/architectural details.
 Schemeticaly, the insect oflaction network has a 4-layer feedforward
@@ -44,7 +54,7 @@ rn = networks.get_receptor_neurons(**rn_para)
 #Layer 1: Antennal Lobe (AL) [first stage in separation]
 glo_para = dict(num_pn=3, num_ln=30, # flies: 3 and 30
     PNClass=ExcitatoryNeuron, LNClass=InhibitoryNeuron,
-    PNSynapseClass=ExcitatorySynapse, LNSynapseClass=InhibitorySynapse)
+    PNSynapseClass=ExcitatorySynapse, LNSynapseClass=RandomSynapse)
 
 glo = networks.get_glomeruli(**glo_para)
 #networks.draw_colored_layered_digraph(glo)
@@ -73,7 +83,6 @@ other_para = dict(prob_r2a=0.5, prob_a2k=0.5, prob_k2b=0.5)
 net = networks.get_olfaction_net(rn_para=rn_para, al_para=al_para,
     mb_para=mb_para, bl_para=bl_para, other_para=other_para)
 
-
 #nx.draw_kamada_kawai(net)
 adj_mat = networks.get_edges_data(net, "weight")
 plt.imshow(adj_mat)
@@ -87,10 +96,11 @@ for margin in margins:
     plt.axvline(x=margin-0.5)
 plt.show()
 
+
 # Finally, the tunings of the recpetors are actually fairly sohpisticated, and
 # are probably evolved to optimized the statisitcs of odor space.
 # cf. Grabe et al., 2016, Cell Reports 16, 3401–3413 September 20, 2016
 # Therefore, it might not be immediately useful for every ML task. For image
 # classficiation purpose, some adapter/filter mimic recpetive field could be
-# a good start. It seems Jon Larson has figured it out already. Would love to
-# hear more.
+# a good start. It seems Jon Larson and coworkers have figured it out already.
+# Would love to hear more.
