@@ -395,8 +395,8 @@ def get_olfaction_net(*, rn_para, al_para, mb_para, bl_para, other_para):
     bl = get_beta_lobe(**bl_para)
     layers = [rn, al, mb, bl]
     net = stack_from_list(layers)
-    for rn_group in rn.layers:
-        glo = next(iter(al.layers))
+    for i, rn_group in enumerate(rn.layers):
+        glo = al.layers[i%len(al.layers)]
         sparsely_connect_between(net, rn_group, glo, RNSynapseClass, prob_r2a)
     kcs = mb.layers[0]
     for glo in al.layers:
